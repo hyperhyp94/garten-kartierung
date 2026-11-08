@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+data/garten.db
+data/uploads/
+data/secret_key
+.pytest_cache/
