@@ -1,2 +1,3 @@
-# garten-kartierung
-Garten-Kartierung: Gärten, Pflanzen/Objekte, Pflege-Planung mit Meister und Lehrling (Flask, Leaflet)
+# Garten-Kartierung
+
+Anforderungen: siehe ANFORDERUNGEN.md. Noch keine Umsetzung.
