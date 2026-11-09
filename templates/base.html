@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f5d3a">
+<title>{% block title %}Garten-Kartierung{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('heute') }}">🌿 Garten</a>
+  {% if user %}<span class="who">{{ user['display_name'] }}</span>{% endif %}
+</header>
+
+<main class="content">
+  {% block content %}{% endblock %}
+</main>
+
+{% if user %}
+<nav class="bottomnav">
+  <a href="{{ url_for('heute') }}" class="{{ 'on' if request.endpoint=='heute' }}"><span>🏠</span>Heute</a>
+  <a href="{{ url_for('gaerten') }}" class="{{ 'on' if request.endpoint in ('gaerten','garten','aufgaben_seite') }}"><span>🗺️</span>Karte</a>
+  <a href="{{ url_for('lexikon') }}" class="{{ 'on' if request.endpoint=='lexikon' }}"><span>📖</span>Lexikon</a>
+  <a href="{{ url_for('vorlagen') }}" class="{{ 'on' if request.endpoint=='vorlagen' }}"><span>✅</span>Anleitungen</a>
+  <a href="{{ url_for('mehr') }}" class="{{ 'on' if request.endpoint=='mehr' }}"><span>⋯</span>Mehr</a>
+</nav>
+{% endif %}
+
+<div id="toast" class="toast" hidden></div>
+<script>window.CSRF = "{{ csrf_token }}";</script>
+<script src="{{ url_for('static', filename='vendor/leaflet.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Anmelden · Garten{% endblock %}
+{% block content %}
+<section class="login card">
+  <h1>Anmelden</h1>
+  <p class="muted">Für Sven und Johannes.</p>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Benutzername
+      <input name="username" autocomplete="username" required autofocus>
+    </label>
+    <label>Passwort
+      <input name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <button class="btn primary big" type="submit">Anmelden</button>
+  </form>
+  <p class="hint">Noch kein Passwort gesetzt? Das setzt der Administrator auf dem Pi über <code>scripts/set_password.py</code>.</p>
+</section>
+{% endblock %}

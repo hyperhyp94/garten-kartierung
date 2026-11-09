@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Aufgaben · Garten{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="row between">
+    <h1>Aufgaben · {{ garden['name'] }}</h1>
+    <a class="btn small" href="{{ url_for('garten', gid=garden['id']) }}">← Karte</a>
+  </div>
+  <p class="muted small">Sortiert nach Priorität (berechnet aus Fälligkeit, Zustand und Saison). Meister können Priorität manuell festlegen.</p>
+  <div class="row wrap">
+    <button class="btn" id="btnTaskCal">📅 Kalender-Export</button>
+    {% if role in ('owner','meister') %}<button class="btn primary" id="btnNewTask">+ Aufgabe</button>{% endif %}
+  </div>
+</section>
+
+<section class="card" id="taskList"><p class="muted">Lade…</p></section>
+{% endblock %}
+{% block scripts %}
+<script>window.GARDEN_ID = {{ garden['id'] }}; window.GARDEN_ROLE = "{{ role }}";</script>
+<script src="{{ url_for('static', filename='aufgaben.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ garden['name'] }} · Garten{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="row between">
+    <h1>{{ garden['name'] }}</h1>
+    <span class="pill">{{ 'Besitzer' if role=='owner' else 'Meister' }}</span>
+  </div>
+  <p class="muted small">{{ garden['adresse'] or '' }}</p>
+  {% if garden['flaeche_m2'] %}<p class="small">Fläche: <strong>{{ '%.0f'|format(garden['flaeche_m2']) }} m²</strong>{% if garden['umfang_m'] %} · Umfang: {{ '%.0f'|format(garden['umfang_m']) }} m{% endif %}</p>{% endif %}
+  <div class="row wrap">
+    <a class="btn" href="{{ url_for('aufgaben_seite', gid=garden['id']) }}">✅ Aufgaben</a>
+    <a class="btn" href="/api/gaerten/{{ garden['id'] }}/kalender.ics">📅 Kalender (ICS)</a>
+    <a class="btn" href="/api/gaerten/{{ garden['id'] }}/export">⬇️ Export (JSON)</a>
+  </div>
+</section>
+
+<section class="card map-card">
+  <div class="row between">
+    <h2>Karte</h2>
+    <div class="row wrap">
+      <button class="btn small" id="toggleFlst">Flurstücke</button>
+      <button class="btn small" id="toggleObj">Objekte</button>
+    </div>
+  </div>
+  <div id="map" class="map"></div>
+  <p class="muted small" id="mapInfo">Lade Karte…</p>
+  <div class="gps-panel">
+    <button class="btn" id="btnHere">📍 Ich bin hier</button>
+    <button class="btn" id="btnMeasure">📏 Abstand messen</button>
+    <button class="btn" id="btnDraw">✏️ Garten zeichnen</button>
+  </div>
+  <p class="hint">GPS-Vermessung ist eine Orientierungsmessung, keine amtliche Vermessung. Die Genauigkeit eines Handys liegt bei etwa ±3–10 m. GPS funktioniert nur über HTTPS (Tunnel).</p>
+  <div id="gpsResult" class="card small" hidden></div>
+</section>
+
+<section class="card">
+  <div class="row between">
+    <h2>Pflanzen & Objekte</h2>
+    <button class="btn primary" id="btnNewObj">+ Neu</button>
+  </div>
+  <div id="objList"><p class="muted">Lade…</p></div>
+</section>
+
+<script>window.GARDEN_ID = {{ garden['id'] }}; window.GARDEN_ROLE = "{{ role }}";</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='garten.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Anleitungen · Garten{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Anleitungen</h1>
+  <p class="muted small">Vorlagen für Pflegeaufgaben. Beim Anlegen einer Aufgabe wird die Anleitung übernommen und kann angepasst werden.</p>
+</section>
+{% for v in vorlagen %}
+<details class="card vorlage">
+  <summary><strong>{{ v['name'] }}</strong> <span class="muted small">{{ v['kategorie'] }}{% if v['intervall_monate'] %} · alle {{ v['intervall_monate'] }} Monate{% endif %}{% if v['saison'] %} · Saison {{ v['saison'] }}{% endif %}</span></summary>
+  <p><strong>Werkzeug:</strong> {{ v['werkzeuge'] or '–' }}</p>
+  <p class="warn"><strong>Sicherheit:</strong> {{ v['sicherheit'] or '–' }}</p>
+  <div class="anl pre">{{ v['anleitung'] }}</div>
+</details>
+{% endfor %}
+{% endblock %}

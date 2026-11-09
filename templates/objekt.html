@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ obj['name'] }} · Garten{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="row between">
+    <h1>{{ obj['name'] }}</h1>
+    <a class="btn small" href="{{ url_for('garten', gid=garden['id']) }}">← Karte</a>
+  </div>
+  <p class="muted small">{{ obj['kategorie'] or '' }} · {{ 'Pflanze' if obj['typ']=='pflanze' else 'Objekt' }} · {{ garden['name'] }}</p>
+  {% if obj['zustand'] %}<span class="zustand z{{ obj['zustand'] }}">Zustand {{ obj['zustand'] }}/5</span>{% endif %}
+  {% if obj['standort_notiz'] %}<p>{{ obj['standort_notiz'] }}</p>{% endif %}
+</section>
+
+<nav class="tabs">
+  <button class="tab on" data-tab="wissen">Wissen</button>
+  <button class="tab" data-tab="protokoll">Protokoll</button>
+  <button class="tab" data-tab="beob">Beobachtungen</button>
+  <button class="tab" data-tab="bilder">Bilder</button>
+  <button class="tab" data-tab="aufgaben">Aufgaben</button>
+</nav>
+
+<section class="card tabpanel" id="tab-wissen"></section>
+<section class="card tabpanel" id="tab-protokoll" hidden></section>
+<section class="card tabpanel" id="tab-beob" hidden></section>
+<section class="card tabpanel" id="tab-bilder" hidden></section>
+<section class="card tabpanel" id="tab-aufgaben" hidden></section>
+
+<script>window.OBJ_ID = {{ obj['id'] }}; window.GARDEN_ID = {{ garden['id'] }}; window.GARDEN_ROLE = "{{ role }}";</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='objekt.js') }}"></script>
+{% endblock %}

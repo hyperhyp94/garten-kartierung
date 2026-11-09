@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Mehr · Garten{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Mehr</h1>
+  <p class="muted small">Angemeldet als <strong>{{ user['display_name'] }}</strong>.</p>
+  <h2>Gärten</h2>
+  {% for g in gardens %}
+    <a class="garden-link" href="{{ url_for('garten', gid=g['id']) }}"><span>🌳 {{ g['name'] }}</span><span class="pill">{{ 'Besitzer' if g['role']=='owner' else 'Meister' }}</span></a>
+  {% endfor %}
+  <h2>Hilfe</h2>
+  <ul class="small">
+    <li>GPS-Funktionen brauchen HTTPS (Tunnel). Im LAN ist GPS im Browser gesperrt.</li>
+    <li>Fotos bis 10 MB, Videos bis 200 MB.</li>
+    <li>Kalender-Export: Erinnerungen 1 Tag und 1 Stunde vorher.</li>
+  </ul>
+  <form method="post" action="{{ url_for('logout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn" type="submit">Abmelden</button>
+  </form>
+</section>
+{% endblock %}

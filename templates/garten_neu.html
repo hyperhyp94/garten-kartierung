@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Neuer Garten · Garten{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="row between"><h1>Neuer Garten</h1><a class="btn small" href="{{ url_for('gaerten') }}">← Zurück</a></div>
+  <form id="gForm" class="stack">
+    <label>Name <input name="name" required value="Garten Deisterstraße 40"></label>
+    <label>Adresse <input name="adresse" value="Deisterstraße 40, 31867 Lauenau (Feggendorf)"></label>
+    <label>Notizen <textarea name="notizen" placeholder="optional"></textarea></label>
+  </form>
+</section>
+<section class="card">
+  <div class="row between wrap">
+    <h2>Flurstücke & Gartenfläche</h2>
+    <div class="row wrap">
+      <button class="btn small" id="undo">↶ Ecke entfernen</button>
+      <button class="btn small" id="clearPoly">Zeichnung löschen</button>
+    </div>
+  </div>
+  <p class="muted small">Flurstücke (Gemarkung Feggendorf) antippen = auswählen. Gartenfläche: Ecken auf der Karte antippen (mind. 3).</p>
+  <div id="map" class="map" style="height:min(60vh,480px)"></div>
+  <p id="info" class="small muted">Lade Karte…</p>
+  <button class="btn primary big" id="save">Garten speichern</button>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+(async () => {
+  const map = L.map('map').setView([52.2842, 9.3884], 17);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, attribution: '© OpenStreetMap' }).addTo(map);
+  const info = document.getElementById('info');
+  const selected = new Set();
+  const flst = await api('/api/flurstuecke');
+  const flLayer = L.geoJSON(flst, {
+    style: { color: '#7a5a3a', weight: 1.5, fillOpacity: 0.04 },
+    onEachFeature: (f, l) => {
+      l.bindTooltip(`Flst. ${f.properties.flurstueck} · Flur ${f.properties.flur}`, { sticky: true });
+      l.on('click', (e) => {
+        L.DomEvent.stopPropagation(e);
+        const k = f.properties.kennzeichen;
+        if (selected.has(k)) { selected.delete(k); l.setStyle({ color: '#7a5a3a', fillOpacity: 0.04 }); }
+        else { selected.add(k); l.setStyle({ color: '#2f5d3a', fillOpacity: 0.3 }); }
+        info.textContent = `${selected.size} Flurstück(e) gewählt`;
+      });
+    }
+  }).addTo(map);
+  map.fitBounds(flLayer.getBounds());
+
+  let pts = [], poly = null, marks = [];
+  function redraw() {
+    if (poly) map.removeLayer(poly);
+    marks.forEach(m => map.removeLayer(m)); marks = [];
+    if (pts.length) {
+      poly = L.polygon(pts.map(p => [p[1], p[0]]), { color: '#2f5d3a', weight: 3, fillOpacity: 0.15 }).addTo(map);
+      marks = pts.map(p => L.circleMarker([p[1], p[0]], { radius: 5, color: '#2f5d3a' }).addTo(map));
+    }
+  }
+  map.on('click', (e) => { pts.push([e.latlng.lng, e.latlng.lat]); redraw(); });
+  document.getElementById('undo').onclick = () => { pts.pop(); redraw(); };
+  document.getElementById('clearPoly').onclick = () => { pts = []; redraw(); };
+
+  document.getElementById('save').onclick = async () => {
+    const f = Object.fromEntries(new FormData(document.getElementById('gForm')).entries());
+    const body = { name: f.name.trim(), adresse: f.adresse, notizen: f.notizen,
+      flurstuecke: [...selected], gemarkung: 'Feggendorf' };
+    if (pts.length >= 3) {
+      body.polygon = { type: 'Polygon', coordinates: [[...pts, pts[0]]] };
+    }
+    try {
+      const r = await api('/api/gaerten', { method: 'POST', body });
+      location.href = `/gaerten/${r.id}`;
+    } catch (e) { toast(e.message); }
+  };
+})().catch(e => { document.getElementById('info').textContent = 'Fehler: ' + e.message; });
+</script>
+{% endblock %}
