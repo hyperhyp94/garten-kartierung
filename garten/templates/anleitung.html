@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf, symbol with context %}
+{% set aktiv = 'seiten.mehr' %}
+{% block titel %}{{ a.titel }}{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  {{ kopf(a.titel, zurueck=url_for('aufgaben.anleitungen'), klein="Anleitung") }}
+  <div class="inhalt">
+    <p class="leise">{{ zeitraum or "Ganzjährig" }}{% if intervall %} · {{ intervall }}{% endif %}</p>
+    <div class="karte-flaeche anleitung abstand">
+      <ol class="schritte">{% for schritt in a.schritte.splitlines() %}<li>{{ schritt }}</li>{% endfor %}</ol>
+      {% if a.werkzeug %}<p><strong>Werkzeug</strong><br>{{ a.werkzeug }}</p>{% endif %}
+      {% if a.sicherheit %}<p class="sicherheit"><strong>Sicherheit</strong><br>{{ a.sicherheit }}</p>{% endif %}
+    </div>
+    {% if a.schluessel and not a.geaendert_am %}<p class="leise klein abstand">Vorlage aus allgemeinem Gartenwissen. Bitte vor Ort prüfen.</p>{% endif %}
+    {% if ist_meister %}<a class="knopf abstand" href="{{ url_for('aufgaben.anleitung_bearbeiten', anleitung_id=a.id) }}">{{ symbol("stift") }} Anleitung ändern</a>{% endif %}
+  </div>
+</main>
+{% endblock %}

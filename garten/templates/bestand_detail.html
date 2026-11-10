@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% from "_teile.html" import symbol, marke, aufgabe_karte, eintrag, plus_knopf with context %}
+{% set aktiv = 'bestand.liste' %}
+{% set plus_bestand = b.id %}
+{% block titel %}{{ b.name }}{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  <div class="held{% if not bilder %} ist-leer{% endif %}">
+    {% if bilder %}<a href="{{ url_for('eintraege.datei', datei=bilder[0].datei) }}" data-bild><img src="{{ url_for('eintraege.datei', datei=bilder[0].datei) }}" alt="Neuestes Foto von {{ b.name }}"></a>{% endif %}
+    <a class="rund" href="{{ url_for('bestand.liste') }}" aria-label="Zurück zum Bestand">{{ symbol("zurueck") }}</a>
+  </div>
+  <div class="inhalt">
+    <div class="titelzeile">
+      <div>
+        <h1>{{ b.name }}</h1>
+        <p class="leise">{{ b.kategorie }}{% if b.form == "linie" and b.mass %} · {{ b.mass|zahl(1) }} m lang{% elif b.form == "flaeche" and b.mass %} · {{ b.mass|zahl }} m²{% endif %}</p>
+      </div>
+      <div class="zustand-gross z{{ b.zustand or 0 }}"><b>{{ b.zustand or "?" }}</b><span>{{ zustand_worte[b.zustand] if b.zustand else "offen" }}</span></div>
+    </div>
+    {% if b.standort_notiz %}<p class="notiz">{{ b.standort_notiz }}</p>{% endif %}
+
+    <div class="schnellwahl">
+      <a href="{{ url_for('eintraege.neu', typ='beobachtung', bestand=b.id) }}"><span>{{ symbol("kamera") }}</span>Beobachtung</a>
+      <a href="{{ url_for('eintraege.neu', typ='massnahme', bestand=b.id) }}"><span>{{ symbol("schere") }}</span>Maßnahme</a>
+      <a href="{{ url_for('eintraege.neu', typ='frage', bestand=b.id) }}"><span>{{ symbol("frage") }}</span>Frage</a>
+      <a href="{{ url_for('eintraege.neu', typ='wissen', bestand=b.id) }}"><span>{{ symbol("buch") }}</span>Wissen</a>
+    </div>
+
+    <h2 class="rubrik">Aufgaben</h2>
+    <div class="stapel">
+      {% for a in aufgaben %}{{ aufgabe_karte(a) }}{% endfor %}
+      <a class="knopf" href="{{ url_for('aufgaben.aufgabe_neu', bestand=b.id) }}">{{ symbol("plus") }} Aufgabe hinzufügen</a>
+    </div>
+
+    {% if verlauf %}
+    <h2 class="rubrik">Zustand im Verlauf</h2>
+    <div class="karte-flaeche grafik">
+      <svg viewBox="0 0 {{ verlauf.breite }} {{ verlauf.hoehe }}" role="img" aria-label="Zustand von {{ verlauf.von|datum }} bis {{ verlauf.bis|datum }}">
+        {% for z in range(1, 6) %}<line x1="12" x2="{{ verlauf.breite - 12 }}" y1="{{ verlauf.hoehe - 12 - (z - 1) * (verlauf.hoehe - 24) / 4 }}" y2="{{ verlauf.hoehe - 12 - (z - 1) * (verlauf.hoehe - 24) / 4 }}" class="grafik-raster"/>{% endfor %}
+        <polyline points="{{ verlauf.linie }}" class="grafik-linie"/>
+        {% for p in verlauf.punkte %}<circle cx="{{ p.x }}" cy="{{ p.y }}" r="5" class="grafik-punkt z{{ p.zustand }}"><title>{{ p.datum|datum }}: Zustand {{ p.zustand }}</title></circle>{% endfor %}
+      </svg>
+      <p class="leise klein grafik-achse"><span>{{ verlauf.von|datum }}</span><span>{{ verlauf.bis|datum }}</span></p>
+    </div>
+    {% endif %}
+
+    {% if vergleich %}
+    <h2 class="rubrik">Beobachtungen im Jahresvergleich</h2>
+    <div class="karte-flaeche tabelle-rahmen">
+      <table class="vergleich">
+        <thead><tr><th scope="col">Phase</th>{% for j in vergleich.jahre %}<th scope="col">{{ j }}</th>{% endfor %}</tr></thead>
+        <tbody>
+          {% for phase, werte in vergleich.phasen %}
+          <tr><th scope="row">{{ phase }}</th>{% for j in vergleich.jahre %}<td>{% if werte[j] %}{{ werte[j][8:10] }}.{{ werte[j][5:7] }}.{% else %}<span class="leise">·</span>{% endif %}</td>{% endfor %}</tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if lexikon %}
+    <h2 class="rubrik">Aus dem Lexikon</h2>
+    <details class="karte-flaeche aufklapp">
+      <summary class="zeile">
+        <span class="zeile-symbol">{{ symbol("buch") }}</span>
+        <span class="zeile-text"><strong>{{ lexikon.name }}</strong><span class="leise klein">Richtwerte, vor Ort prüfen</span></span>
+        {{ symbol("weiter", "leise aufklapp-pfeil") }}
+      </summary>
+      <dl class="angaben">
+        {% for wort, wert in [("Standort", lexikon.standort), ("Boden", lexikon.boden), ("Schnitt", lexikon.schnitt), ("Pflege", lexikon.pflege), ("Achten auf", lexikon.probleme)] if wert %}
+        <dt>{{ wort }}</dt><dd>{{ wert }}</dd>
+        {% endfor %}
+      </dl>
+    </details>
+    {% endif %}
+
+    <h2 class="rubrik">Verlauf</h2>
+    <div class="verlauf">
+      {% for e in eintraege %}{{ eintrag(e, nutzer, ist_meister) }}{% endfor %}
+    </div>
+
+    <h2 class="rubrik">Verwalten</h2>
+    <div class="karte-flaeche">
+      <a class="zeile" href="{{ url_for('seiten.karte', zeige=b.id) }}"><span class="zeile-symbol">{{ symbol("karte") }}</span><span class="zeile-text"><strong>Auf der Karte zeigen</strong></span>{{ symbol("weiter", "leise") }}</a>
+      <a class="zeile zeile-trenner" href="{{ url_for('bestand.bearbeiten', bestand_id=b.id) }}"><span class="zeile-symbol">{{ symbol("stift") }}</span><span class="zeile-text"><strong>Name und Lage ändern</strong></span>{{ symbol("weiter", "leise") }}</a>
+      <form data-senden data-frage="„{{ b.name }}“ aus dem Garten nehmen? Der Verlauf bleibt gespeichert." action="{{ url_for('bestand.entfernen', bestand_id=b.id) }}" class="zeile-trenner">
+        <button class="zeile ist-knopf" type="submit"><span class="zeile-symbol ist-rot">{{ symbol("muell") }}</span><span class="zeile-text"><strong>Aus dem Garten nehmen</strong></span></button>
+      </form>
+    </div>
+  </div>
+  {{ plus_knopf() }}
+</main>
+{% endblock %}

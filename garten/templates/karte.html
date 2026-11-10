@@ -10,7 +10,7 @@
   <header class="karten-kopf">
     <div class="schild">
       <strong>{{ garten.name }}</strong>
-      <span>{{ "{:,.0f}".format(garten.flaeche_m2).replace(",", ".") }} m² · {{ daten.garten.flurstuecke|length }} {{ "Flurstück" if daten.garten.flurstuecke|length == 1 else "Flurstücke" }}</span>
+      <span>{{ flaeche_m2|zahl }} m² · {{ daten.bestand|length }} {{ "Eintrag" if daten.bestand|length == 1 else "Einträge" }}</span>
     </div>
     <button class="rund" id="ebenen-knopf" type="button" aria-label="Karte einstellen" aria-haspopup="dialog">
       <svg class="symbol" aria-hidden="true"><use href="#s-ebenen"/></svg>
@@ -18,10 +18,22 @@
   </header>
 
   <div class="karten-knoepfe">
+    <button class="rund" id="standort" type="button" aria-label="Meinen Standort zeigen" hidden>
+      <svg class="symbol" aria-hidden="true"><use href="#s-standort"/></svg>
+    </button>
     <button class="rund" id="zum-garten" type="button" aria-label="Zum Garten springen">
       <svg class="symbol" aria-hidden="true"><use href="#s-ziel"/></svg>
     </button>
+    <button class="plus ist-eingereiht" type="button" data-oeffnet="plus-blatt" aria-label="Neu erfassen" aria-haspopup="dialog">
+      <svg class="symbol" aria-hidden="true"><use href="#s-plus"/></svg>
+    </button>
   </div>
+
+  <a class="karten-zettel" id="zettel" hidden>
+    <span class="bildchen" id="zettel-bild"></span>
+    <span class="zeile-text"><strong id="zettel-name"></strong><span class="leise klein" id="zettel-text"></span></span>
+    <span class="zustand" id="zettel-zustand"></span>
+  </a>
 
   <dialog class="blatt" id="ebenen" aria-labelledby="ebenen-titel">
     <div class="blatt-griff" aria-hidden="true"></div>
@@ -33,6 +45,10 @@
       <label><input type="radio" name="grund" value="strasse"><span>Straßenkarte</span></label>
     </fieldset>
 
+    <label class="schalter-zeile">
+      <span>Nur mit offener Aufgabe</span>
+      <input type="checkbox" id="aufgaben-schalter" class="schalter">
+    </label>
     <label class="schalter-zeile">
       <span>Flurstücke anzeigen</span>
       <input type="checkbox" id="flur-schalter" class="schalter">

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf, symbol, zustand_wahl, foto_feld with context %}
+{% set ohne_leiste = true %}
+{% set neu = b is none %}
+{% set wort = "Pflanze" if art == "pflanze" else "Objekt" %}
+{% block titel %}{{ wort ~ " erfassen" if neu else b.name ~ " ändern" }}{% endblock %}
+{% block kopf %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">{% endblock %}
+{% block inhalt %}
+<main class="seite ist-formular">
+  {{ kopf(wort ~ " erfassen" if neu else "Ändern", zurueck=url_for('bestand.liste') if neu else url_for('bestand.detail', bestand_id=b.id)) }}
+  <form class="formular inhalt" data-senden action="{{ ziel }}" id="bestand-form" novalidate>
+    <input type="hidden" name="art" value="{{ art }}">
+    <input type="hidden" name="lexikon_id" id="lexikon-id" value="{{ vorwahl.id if vorwahl else '' }}">
+
+    {% if neu %}
+    <section class="abschnitt">
+      <h2>Foto</h2>
+      {{ foto_feld(video=false) }}
+    </section>
+    {% endif %}
+
+    <section class="abschnitt">
+      <h2>{{ "Welche Pflanze?" if art == "pflanze" else "Was ist es?" }}</h2>
+      {% if neu and art == "pflanze" %}
+      <label class="suchfeld ist-flach">{{ symbol("suche") }}<input type="search" id="lexikon-suche" placeholder="Im Lexikon suchen, z. B. Apfel" aria-label="Im Lexikon suchen" autocomplete="off"></label>
+      <div class="chips ist-kasten" id="lexikon-liste">
+        {% for e in lexikon %}
+        <button type="button" class="chip{% if vorwahl and vorwahl.id == e.id %} ist-an{% endif %}" data-id="{{ e.id }}" data-name="{{ e.name }}" data-kategorie="{{ e.kategorie }}" data-aufgaben="{{ e.aufgaben|length }}" data-text="{{ (e.name ~ ' ' ~ e.botanisch)|lower }}">{{ e.name }}</button>
+        {% endfor %}
+      </div>
+      <label class="haken" id="aufgaben-zeile"{% if not vorwahl %} hidden{% endif %}>
+        <input type="checkbox" name="aufgaben_anlegen" value="1" checked>
+        <span><span id="aufgaben-anzahl">{{ vorwahl.aufgaben|length if vorwahl else 0 }}</span> Pflegeaufgaben aus dem Lexikon anlegen <small class="leise">(Richtwerte)</small></span>
+      </label>
+      {% endif %}
+      <label class="feld">
+        <span>Name</span>
+        <input name="name" id="name" maxlength="80" required autocomplete="off" placeholder="{{ 'z. B. Apfelbaum am Zaun' if art == 'pflanze' else 'z. B. Weg zum Schuppen' }}" value="{{ b.name if b else (vorwahl.name if vorwahl else '') }}">
+      </label>
+      <label class="feld">
+        <span>Kategorie</span>
+        <select name="kategorie" id="kategorie" required>
+          {% if neu and not vorwahl %}<option value="" selected disabled>Bitte wählen</option>{% endif %}
+          {% for k in kategorien %}<option value="{{ k }}" data-form="{{ formen.get(k, 'punkt') }}"{% if (b and b.kategorie == k) or (vorwahl and vorwahl.kategorie == k) %} selected{% endif %}>{{ k }}</option>{% endfor %}
+        </select>
+      </label>
+    </section>
+
+    <section class="abschnitt">
+      <h2>Lage</h2>
+      <fieldset class="wahl ist-drei">
+        <legend class="nur-vorlesen">Form auf der Karte</legend>
+        <label><input type="radio" name="form" value="punkt"{% if daten.form == "punkt" %} checked{% endif %}><span>Punkt</span></label>
+        <label><input type="radio" name="form" value="linie"{% if daten.form == "linie" %} checked{% endif %}><span>Linie</span></label>
+        <label><input type="radio" name="form" value="flaeche"{% if daten.form == "flaeche" %} checked{% endif %}><span>Fläche</span></label>
+      </fieldset>
+      {% include "_editor.html" %}
+    </section>
+
+    {% if neu %}
+    <section class="abschnitt">{{ zustand_wahl("Zustand heute") }}</section>
+    {% endif %}
+
+    <section class="abschnitt">
+      <label class="feld">
+        <span>Notiz zum Standort <small class="leise">(freiwillig)</small></span>
+        <input name="standort_notiz" maxlength="500" autocomplete="off" placeholder="z. B. halbschattig, hinter dem Schuppen" value="{{ b.standort_notiz if b else '' }}">
+      </label>
+    </section>
+
+    <div class="fuss ist-fest">
+      <button class="knopf ist-haupt" type="submit">{{ wort ~ " speichern" if neu else "Speichern" }}</button>
+    </div>
+  </form>
+</main>
+<script type="application/json" id="daten">{{ daten|tojson }}</script>
+{% endblock %}
+{% block skripte %}
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/bestand-form.js') }}"></script>
+{% endblock %}

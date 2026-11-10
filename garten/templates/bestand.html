@@ -1,16 +1,44 @@
 {% extends "base.html" %}
-{% set aktiv = 'seiten.bestand' %}
+{% from "_teile.html" import kopf, symbol, marke, bildchen, plus_knopf with context %}
+{% set aktiv = 'bestand.liste' %}
 {% block titel %}Bestand · {{ garten.name }}{% endblock %}
 {% block inhalt %}
 <main class="seite">
-  <header class="kopf"><div><p class="leise klein">{{ garten.name }}</p><h1>Bestand</h1></div></header>
+  {{ kopf("Bestand", klein=garten.name) }}
   <div class="inhalt">
+    {% if not bestand %}
     <section class="leer">
-      <span class="leer-symbol"><svg class="symbol" aria-hidden="true"><use href="#s-bestand"/></svg></span>
-      <h2>Noch keine Pflanzen</h2>
-      <p class="leise">Hier erscheinen alle Pflanzen und Objekte des Gartens als Liste mit Suche. Das Erfassen kommt mit Stufe 2.</p>
-      <a class="knopf" href="{{ url_for('seiten.karte') }}">Zur Karte</a>
+      <span class="leer-symbol">{{ symbol("bestand") }}</span>
+      <h2>Noch nichts erfasst</h2>
+      <p class="leise">Hier stehen alle Pflanzen und Objekte des Gartens. Fang mit der ersten Pflanze an.</p>
+      <a class="knopf ist-haupt" href="{{ url_for('bestand.neu') }}">Pflanze erfassen</a>
     </section>
+    {% else %}
+    <div class="filterzeile" data-filter="#bestand-liste">
+      <label class="suchfeld ist-flach">{{ symbol("suche") }}<input type="search" placeholder="Suchen" aria-label="Bestand durchsuchen" data-filter-text></label>
+      <fieldset class="wahl ist-drei">
+        <legend class="nur-vorlesen">Anzeigen</legend>
+        <label><input type="radio" name="art" value="" checked data-filter-wert><span>Alle</span></label>
+        <label><input type="radio" name="art" value="pflanze" data-filter-wert><span>Pflanzen</span></label>
+        <label><input type="radio" name="art" value="objekt" data-filter-wert><span>Objekte</span></label>
+      </fieldset>
+      <label class="schalter-zeile klein"><span>Schlechtester Zustand zuerst</span><input type="checkbox" class="schalter" data-filter-sortieren></label>
+    </div>
+    <div class="stapel" id="bestand-liste">
+      {% for b in bestand %}
+      <a class="aufgabe" href="{{ url_for('bestand.detail', bestand_id=b.id) }}" data-text="{{ (b.name ~ ' ' ~ b.kategorie)|lower }}" data-wert="{{ b.art }}" data-rang="{{ b.zustand or 9 }}">
+        {{ bildchen(b.bild, "bestand" if b.art == "pflanze" else "objekt") }}
+        <span class="zeile-text">
+          <strong>{{ b.name }}</strong>
+          <span class="leise klein">{{ b.kategorie }}{% if b.offen %} · {{ b.offen }} {{ "Aufgabe" if b.offen == 1 else "Aufgaben" }}{% endif %}</span>
+        </span>
+        {{ marke(b.zustand) }}
+      </a>
+      {% endfor %}
+    </div>
+    <p class="leise ruhe" data-filter-leer hidden>Nichts gefunden.</p>
+    {% endif %}
   </div>
+  {{ plus_knopf() }}
 </main>
 {% endblock %}

@@ -50,7 +50,7 @@ Die offenen Punkte aus den Anforderungen sind hier mit einem Vorschlag beantwort
 | Anzahl Gärten | Einer. Das Datenmodell kann mehrere, die Oberfläche zeigt das erst bei Bedarf. |
 | Zugang | Benutzername und Passwort für Sven und Johannes, Sperre nach mehreren Fehlversuchen, von außen über den HTTPS-Tunnel. |
 | Rollen | Beide dürfen alles erfassen. Nur Johannes ändert Anleitungen und legt eine Priorität von Hand fest. |
-| Ohne Netz | Kein vollständiger Offline-Betrieb. Stattdessen bleibt jede Eingabe samt Foto auf dem Handy gespeichert, bis sie wirklich gesendet ist, und lässt sich mit einem Tipper erneut senden. |
+| Ohne Netz | Kein vollständiger Offline-Betrieb. Stattdessen bleibt jede Eingabe samt Foto auf dem Handy gespeichert, bis sie wirklich gesendet ist. Die App sendet sie von selbst nach, sobald wieder Netz da ist, und legt dabei nie einen Eintrag doppelt an. |
 | Wetter | Kommt nach Stufe 5, siehe „Später“. |
 | Handys | Ein Android-Gerät und ein iPhone. Jede Stufe wird in beiden Browsern geprüft (Chrome und Safari). Das iPhone braucht mindestens iOS 15.4 aus dem Jahr 2022. |
 
@@ -60,7 +60,7 @@ Die Regel ist absichtlich einfach, damit jeder nachvollziehen kann, warum eine A
 
 | Stufe | Wann |
 |---|---|
-| Jetzt | Überfällig, oder fällig in den nächsten 14 Tagen bei Zustand 1 oder 2, oder von Johannes so festgelegt |
+| Jetzt | Heute fällig oder überfällig, oder fällig in den nächsten 14 Tagen bei Zustand 1 oder 2, oder von Johannes so festgelegt |
 | Bald | Fällig in den nächsten 30 Tagen |
 | Später | Alles andere |
 
@@ -96,7 +96,7 @@ So wenig wie möglich, damit es auf dem Raspberry Pi einfach läuft und sich lei
 
 ## Reihenfolge
 
-Stand 10.11.2026: Stufe 1 ist umgesetzt.
+Stand 10.11.2026: Alle fünf Stufen sind umgesetzt und automatisch getestet. Der Test auf den echten Handys im Garten steht noch aus.
 
 Nach jeder Stufe ist die App am Handy benutzbar und wird im Garten ausprobiert, bevor die nächste beginnt.
 

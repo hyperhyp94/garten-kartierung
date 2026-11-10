@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf, symbol, zustand_wahl, foto_feld, bildchen, marke, medien_raster with context %}
+{% set ohne_leiste = true %}
+{% set titel_text = "Erledigt" if aufgabe else ("Antworten" if typ == "antwort" else ("Frage stellen" if typ == "frage" else info.wort)) %}
+{% block titel %}{{ titel_text }}{% endblock %}
+{% block inhalt %}
+<main class="seite ist-formular">
+  {% if not bestand %}
+    {{ kopf(titel_text, zurueck=url_for('aufgaben.heute_seite'), klein="Zu welcher Pflanze?") }}
+    <div class="inhalt">
+      <div class="filterzeile" data-filter="#auswahl">
+        <label class="suchfeld ist-flach">{{ symbol("suche") }}<input type="search" placeholder="Suchen" aria-label="Pflanze suchen" data-filter-text></label>
+      </div>
+      <div class="stapel" id="auswahl">
+        {% for b in auswahl %}
+        <a class="aufgabe" href="{{ url_for('eintraege.neu', typ=typ, bestand=b.id) }}" data-text="{{ (b.name ~ ' ' ~ b.kategorie)|lower }}">
+          {{ bildchen(b.bild, "bestand" if b.art == "pflanze" else "objekt") }}
+          <span class="zeile-text"><strong>{{ b.name }}</strong><span class="leise klein">{{ b.kategorie }}</span></span>
+          {{ marke(b.zustand) }}
+        </a>
+        {% endfor %}
+      </div>
+      <p class="leise ruhe" data-filter-leer hidden>Nichts gefunden.</p>
+    </div>
+  {% else %}
+    {{ kopf(titel_text, zurueck=(url_for('aufgaben.aufgabe', aufgabe_id=aufgabe.id) if aufgabe else url_for('bestand.detail', bestand_id=bestand.id)), klein=bestand.name) }}
+    <form class="formular inhalt" data-senden action="{{ url_for('eintraege.anlegen') }}" novalidate>
+      <input type="hidden" name="typ" value="{{ typ }}">
+      <input type="hidden" name="bestand_id" value="{{ bestand.id }}">
+      {% if aufgabe %}<input type="hidden" name="aufgabe_id" value="{{ aufgabe.id }}">{% endif %}
+      {% if frage %}<input type="hidden" name="antwort_auf" value="{{ frage.id }}">{% endif %}
+      {% if weiter %}<input type="hidden" name="weiter" value="{{ weiter }}">{% endif %}
+
+      {% if aufgabe %}
+      <p class="hinweis">{{ symbol("haken") }} <span><strong>{{ aufgabe.titel }}</strong><br>Halte kurz fest, wie es gelaufen ist.</span></p>
+      {% endif %}
+
+      {% if frage %}
+      <section class="abschnitt karte-flaeche frage-karte">
+        <p class="leise klein">{{ frage.von }} fragt am {{ frage.datum|datum }}</p>
+        <p class="eintrag-text">{{ frage.text }}</p>
+        {% for m in frage_bilder %}
+        <figure class="frage-bild">
+          <img src="{{ url_for('eintraege.datei', datei=m.datei) }}" alt="Foto zur Frage">
+          <button class="knopf" type="button" data-zeichnen="{{ url_for('eintraege.datei', datei=m.datei) }}">{{ symbol("zeichnen") }} Ins Bild zeichnen</button>
+        </figure>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      {% if vorher %}
+      <section class="abschnitt">
+        <h2>Vorher</h2>
+        {{ medien_raster(vorher) }}
+      </section>
+      {% endif %}
+
+      <section class="abschnitt">
+        <h2>{{ "Nachher-Foto" if aufgabe else ("Foto oder Video" if typ != "antwort" else "Bild zur Antwort") }}</h2>
+        {{ foto_feld(kennzeichen=(typ == "massnahme")) }}
+      </section>
+
+      {% if info.arten and not aufgabe %}
+      <section class="abschnitt">
+        <h2>{{ info.frage }}</h2>
+        <div class="chips">
+          {% for art in info.arten %}
+          <label class="chip"><input type="radio" name="unterart" value="{{ art }}"><span>{{ art }}</span></label>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <section class="abschnitt">
+        {% if typ == "wissen" %}
+        <label class="feld"><span>Titel</span><input name="titel" maxlength="120" required autocomplete="off" placeholder="z. B. Sorte und Pflanzjahr"></label>
+        {% endif %}
+        <label class="feld">
+          <span>{{ {"frage": "Deine Frage", "antwort": "Deine Antwort", "wissen": "Text"}.get(typ, "Notiz") }}{% if typ in ("massnahme", "beobachtung") %} <small class="leise">(freiwillig)</small>{% endif %}</span>
+          <textarea name="text" rows="{{ 5 if typ in ('wissen', 'antwort') else 3 }}" maxlength="4000" placeholder="{{ {'frage': 'z. B. Wo soll ich diesen Ast abschneiden?', 'antwort': 'Kurz erklären, was zu tun ist'}.get(typ, '') }}"></textarea>
+        </label>
+      </section>
+
+      {% if typ in ("massnahme", "beobachtung") %}
+      <section class="abschnitt">{{ zustand_wahl("Zustand danach" if typ == "massnahme" else "Zustand") }}</section>
+      <details class="abschnitt aufklapp-schlicht">
+        <summary>Anderes Datum</summary>
+        <label class="feld"><span>Datum</span><input type="date" name="datum" value="{{ tag }}" max="{{ tag }}"></label>
+      </details>
+      {% endif %}
+
+      <div class="fuss ist-fest">
+        <button class="knopf ist-haupt" type="submit">{{ "Erledigt speichern" if aufgabe else ({"frage": "Frage senden", "antwort": "Antwort senden"}.get(typ, "Speichern")) }}</button>
+      </div>
+    </form>
+  {% endif %}
+</main>
+{% endblock %}

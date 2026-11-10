@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf, symbol, zustand_wahl with context %}
+{% set ohne_leiste = true %}
+{% block titel %}Rundgang{% endblock %}
+{% block inhalt %}
+<main class="seite ist-formular">
+  {{ kopf("Rundgang", zurueck=url_for('aufgaben.heute_seite'), klein=("Noch " ~ rest ~ " von " ~ gesamt) if pflanze else garten.name) }}
+  <div class="inhalt">
+    {% if not pflanze %}
+    <section class="leer">
+      <span class="leer-symbol">{{ symbol("haken") }}</span>
+      {% if gesamt %}
+      <h2>Rundgang fertig</h2>
+      <p class="leise">Alle Pflanzen haben einen aktuellen Zustand. Der nächste Rundgang steht in etwa einem Monat an.</p>
+      {% else %}
+      <h2>Noch keine Pflanzen</h2>
+      <p class="leise">Der Rundgang führt dich von Pflanze zu Pflanze. Erfasse zuerst deine Pflanzen.</p>
+      {% endif %}
+      <a class="knopf ist-haupt" href="{{ url_for('aufgaben.heute_seite') }}">Zu Heute</a>
+    </section>
+    {% else %}
+    <div class="fortschritt" role="progressbar" aria-valuemin="0" aria-valuemax="{{ gesamt }}" aria-valuenow="{{ gesamt - rest }}"><span style="width: {{ ((gesamt - rest) / gesamt * 100)|round|int }}%"></span></div>
+    <form class="formular" data-senden action="{{ url_for('eintraege.anlegen') }}" novalidate>
+      <input type="hidden" name="typ" value="zustand">
+      <input type="hidden" name="unterart" value="Rundgang">
+      <input type="hidden" name="bestand_id" value="{{ pflanze.id }}">
+      <input type="hidden" name="weiter" value="{{ zurueck_zum_rundgang }}">
+      <div class="karte-flaeche rundgang-karte">
+        {% if pflanze.bild %}<img src="{{ url_for('eintraege.datei', datei=pflanze.bild) }}" alt="Letztes Foto von {{ pflanze.name }}">{% endif %}
+        <div class="rundgang-text">
+          <h2>{{ pflanze.name }}</h2>
+          <p class="leise">{{ pflanze.kategorie }}{% if pflanze.standort_notiz %} · {{ pflanze.standort_notiz }}{% endif %}</p>
+          <p class="leise klein">{% if pflanze.zuletzt %}Zuletzt Zustand {{ pflanze.zustand }} am {{ pflanze.zuletzt|datum }}{% else %}Noch kein Zustand erfasst{% endif %}</p>
+        </div>
+      </div>
+      <div data-foto-feld>
+        <ul class="foto-liste" data-liste></ul>
+        <label class="knopf">{{ symbol("kamera") }} Foto aufnehmen<input type="file" accept="image/*" capture="environment" class="nur-vorlesen" data-bilder></label>
+      </div>
+      {{ zustand_wahl("Wie steht sie da? Ein Tipper speichert.", pflicht=true, auto=true) }}
+      <details class="aufklapp-schlicht">
+        <summary>Notiz dazuschreiben</summary>
+        <label class="feld"><span class="nur-vorlesen">Notiz</span><textarea name="text" rows="2" maxlength="4000" placeholder="Was fällt auf?"></textarea></label>
+      </details>
+    </form>
+    <div class="zweier abstand">
+      <a class="knopf ist-klein" href="{{ url_for('aufgaben.rundgang', ohne=ueberspringen) }}">Überspringen</a>
+      <a class="knopf ist-klein" href="{{ url_for('seiten.karte', zeige=pflanze.id) }}">Wo steht sie?</a>
+    </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

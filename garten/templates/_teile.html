@@ -1,0 +1,111 @@
+{# Bausteine, die mehrere Seiten benutzen. #}
+
+{% macro symbol(name, klasse="") %}<svg class="symbol {{ klasse }}" aria-hidden="true"><use href="#s-{{ name }}"/></svg>{% endmacro %}
+
+{% macro kopf(titel, zurueck=None, klein=None) %}
+<header class="kopf">
+  {% if zurueck %}<a class="rund ist-flach" href="{{ zurueck }}" aria-label="Zurück">{{ symbol("zurueck") }}</a>{% endif %}
+  <div class="kopf-text">
+    {% if klein %}<p class="leise klein">{{ klein }}</p>{% endif %}
+    <h1>{{ titel }}</h1>
+  </div>
+  {% if caller %}{{ caller() }}{% endif %}
+</header>
+{% endmacro %}
+
+{% macro marke(zustand) %}<span class="zustand z{{ zustand or 0 }}" title="Zustand">{{ zustand or "?" }}</span>{% endmacro %}
+
+{% macro bildchen(datei, ersatz="bestand") %}
+<span class="bildchen">{% if datei %}<img src="{{ url_for('eintraege.datei', datei=datei) }}" alt="" loading="lazy">{% else %}{{ symbol(ersatz) }}{% endif %}</span>
+{% endmacro %}
+
+{% macro zustand_wahl(titel="Zustand", pflicht=false, wert=None, auto=false) %}
+<fieldset class="zustand-wahl">
+  <legend>{{ titel }}{% if not pflicht %} <small class="leise">(freiwillig)</small>{% endif %}</legend>
+  <div class="zustand-felder">
+    {% for z, wort in zustand_worte.items() %}
+    <label class="z{{ z }}">
+      <input type="radio" name="zustand" value="{{ z }}"{% if wert == z %} checked{% endif %}{% if auto %} data-auto-senden{% endif %}>
+      <span><b>{{ z }}</b>{{ wort }}</span>
+    </label>
+    {% endfor %}
+  </div>
+</fieldset>
+{% endmacro %}
+
+{% macro foto_feld(kennzeichen=false, video=true) %}
+<div class="foto-feld" data-foto-feld{% if kennzeichen %} data-kennzeichen{% endif %}>
+  <ul class="foto-liste" data-liste></ul>
+  <div class="foto-knoepfe">
+    <label class="knopf">{{ symbol("kamera") }} Foto aufnehmen<input type="file" accept="image/*" capture="environment" class="nur-vorlesen" data-bilder></label>
+    <label class="knopf">{{ symbol("bild") }} Aus Galerie<input type="file" accept="image/*" multiple class="nur-vorlesen" data-bilder></label>
+  </div>
+  {% if video %}<label class="knopf ist-schlicht ist-klein">Video hinzufügen<input type="file" accept="video/*" class="nur-vorlesen" data-video></label>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro aufgabe_karte(a) %}
+<a class="aufgabe stufe-{{ a.stufe }}" href="{{ url_for('aufgaben.aufgabe', aufgabe_id=a.id) }}">
+  {{ bildchen(a.bild) }}
+  <span class="zeile-text">
+    <strong>{{ a.titel }}</strong>
+    <span class="leise klein">{{ a.bestand_name }}</span>
+    <span class="grund">{{ a.grund }}</span>
+  </span>
+  {{ symbol("weiter", "leise") }}
+</a>
+{% endmacro %}
+
+{% macro medien_raster(medien) %}
+{% if medien %}
+<div class="medien">
+  {% for m in medien %}
+    {% if m.art == "bild" %}
+    <a href="{{ url_for('eintraege.datei', datei=m.datei) }}" data-bild>
+      <img src="{{ url_for('eintraege.datei', datei=m.vorschau or m.datei) }}" alt="{{ m.kennzeichen or 'Foto' }}" loading="lazy">
+      {% if m.kennzeichen %}<span class="medien-marke">{{ m.kennzeichen }}</span>{% endif %}
+    </a>
+    {% else %}
+    <video controls preload="metadata" playsinline src="{{ url_for('eintraege.datei', datei=m.datei) }}"></video>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro eintrag_titel(e) -%}
+  {%- if e.typ == "massnahme" -%}{{ e.unterart or "Maßnahme" }}{% if e.titel and e.titel != e.unterart %} · {{ e.titel }}{% endif %}
+  {%- elif e.typ == "beobachtung" -%}{{ e.unterart or ("Foto" if e.medien else "Beobachtung") }}
+  {%- elif e.typ == "wissen" -%}{{ e.titel }}
+  {%- elif e.typ == "frage" -%}Frage von {{ e.von }}
+  {%- elif e.typ == "antwort" -%}Antwort von {{ e.von }}
+  {%- else -%}{{ e.titel or e.unterart or "Zustand" }}{%- endif -%}
+{%- endmacro %}
+
+{% macro eintrag(e, nutzer, ist_meister) %}
+<article class="eintrag typ-{{ e.typ }}" id="e{{ e.id }}">
+  <header class="eintrag-kopf">
+    <strong>{{ eintrag_titel(e) }}</strong>
+    <span class="leise klein">{{ e.datum|datum }}{% if e.typ not in ("frage", "antwort") and e.von %} · {{ e.von }}{% endif %}{% if e.typ == "wissen" and e.unterart %} · {{ e.unterart }}{% endif %}</span>
+  </header>
+  {% if e.zustand %}<p class="eintrag-zustand">{{ marke(e.zustand) }} Zustand {{ zustand_worte[e.zustand] }}</p>{% endif %}
+  {% if e.text %}<p class="eintrag-text">{{ e.text }}</p>{% endif %}
+  {{ medien_raster(e.medien) }}
+  {% for a in e.antworten %}{{ eintrag(a, nutzer, ist_meister) }}{% endfor %}
+  <footer class="eintrag-fuss">
+    {% if e.typ == "frage" %}
+    <a class="knopf ist-klein{% if e.offen and e.erstellt_von != nutzer.id %} ist-haupt{% endif %}" href="{{ url_for('eintraege.neu', typ='antwort', antwort_auf=e.id) }}">{{ symbol("frage") }} Antworten</a>
+    {% if e.offen %}<span class="hinweis-klein">wartet auf Antwort</span>{% endif %}
+    {% endif %}
+    {% if e.erstellt_von == nutzer.id or ist_meister %}
+    <form data-senden data-frage="Diesen Eintrag wirklich löschen?" action="{{ url_for('eintraege.loeschen', eintrag_id=e.id) }}" class="eintrag-loeschen">
+      <button class="knopf ist-schlicht ist-klein" type="submit" aria-label="Eintrag löschen">{{ symbol("muell") }}</button>
+    </form>
+    {% endif %}
+  </footer>
+</article>
+{% endmacro %}
+
+{% macro plus_knopf() %}
+<button class="plus" type="button" data-oeffnet="plus-blatt" aria-label="Neu erfassen" aria-haspopup="dialog">{{ symbol("plus") }}</button>
+{% endmacro %}

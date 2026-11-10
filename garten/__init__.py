@@ -2,6 +2,7 @@
 
 import os
 import secrets
+import tempfile
 from datetime import timedelta
 from pathlib import Path
 
@@ -9,7 +10,7 @@ from flask import Flask, request
 from flask.sessions import SecureCookieSessionInterface
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-VERSION = "0.1.0"
+VERSION = "1.0.0"
 PROJEKT = Path(__file__).resolve().parent.parent
 
 
@@ -52,7 +53,9 @@ def create_app(konfiguration: dict | None = None) -> Flask:
         SESSION_COOKIE_NAME="garten",
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
-        MAX_CONTENT_LENGTH=1 * 1024 * 1024,
+        # Ein Video darf 200 MB groß sein, dazu kommen Fotos und Formularfelder.
+        MAX_CONTENT_LENGTH=230 * 1024 * 1024,
+        MAX_FORM_MEMORY_SIZE=2 * 1024 * 1024,
         JSON_AS_ASCII=False,
     )
     if konfiguration:
@@ -65,13 +68,19 @@ def create_app(konfiguration: dict | None = None) -> Flask:
     # Header, dass sie außen https war.
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
-    from . import anmeldung, db, gaerten, karte, seiten
+    # Große Uploads landen beim Empfang in einer Hilfsdatei. Die soll auf der Speicherkarte liegen und
+    # nicht im Arbeitsspeicher, den manche Systeme für /tmp benutzen.
+    (daten / "tmp").mkdir(exist_ok=True)
+    tempfile.tempdir = str(daten / "tmp")
+
+    from . import anmeldung, aufgaben, bestand, db, eintraege, gaerten, karte, lexikon, seiten
 
     db.einrichten(app)
+    con = db.verbinden(app.config["DATENBANK"])
+    lexikon.saee_anleitungen(con)
+    con.close()
     anmeldung.einrichten(app)
-    app.register_blueprint(anmeldung.bp)
-    app.register_blueprint(seiten.bp)
-    app.register_blueprint(gaerten.bp)
-    app.register_blueprint(karte.bp)
+    for modul in (anmeldung, seiten, gaerten, karte, bestand, eintraege, aufgaben):
+        app.register_blueprint(modul.bp)
     seiten.einrichten(app)
     return app

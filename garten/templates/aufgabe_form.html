@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf with context %}
+{% set ohne_leiste = true %}
+{% block titel %}{{ "Aufgabe ändern" if a else "Neue Aufgabe" }}{% endblock %}
+{% block inhalt %}
+<main class="seite ist-formular">
+  {{ kopf("Aufgabe ändern" if a else "Neue Aufgabe", zurueck=(url_for('aufgaben.aufgabe', aufgabe_id=a.id) if a else url_for('bestand.detail', bestand_id=bestand.id)), klein=bestand.name) }}
+  <form class="formular inhalt" data-senden action="{{ ziel }}" novalidate>
+    <input type="hidden" name="bestand_id" value="{{ bestand.id }}">
+    <label class="feld">
+      <span>Anleitung <small class="leise">(freiwillig)</small></span>
+      <select name="anleitung_id" id="anleitung-wahl">
+        <option value="">Ohne Anleitung</option>
+        {% for an in anleitungen %}<option value="{{ an.id }}" data-titel="{{ an.titel }}" data-intervall="{{ an.intervall_monate or '' }}"{% if a and a.anleitung_id == an.id %} selected{% endif %}>{{ an.titel }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="feld"><span>Titel</span><input name="titel" id="aufgabe-titel" maxlength="120" required autocomplete="off" placeholder="z. B. Totholz entfernen" value="{{ a.titel if a else '' }}"></label>
+    <label class="feld"><span>Fällig am</span><input type="date" name="faellig_am" required value="{{ vorschlag }}"></label>
+    <label class="feld">
+      <span>Wiederholen</span>
+      <select name="intervall_monate" id="aufgabe-intervall">
+        {% for wert, text in intervalle %}<option value="{{ wert or '' }}"{% if a and a.intervall_monate == wert %} selected{% endif %}>{{ text }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="feld"><span>Hinweis <small class="leise">(freiwillig)</small></span><textarea name="hinweis" rows="3" maxlength="2000" placeholder="Was ist bei dieser Pflanze besonders?">{{ a.hinweis if a else '' }}</textarea></label>
+    {% if ist_meister %}
+    <label class="haken"><input type="checkbox" name="fest_jetzt" value="1"{% if a and a.fest_jetzt %} checked{% endif %}><span>Als „Jetzt“ festlegen, unabhängig vom Datum</span></label>
+    {% endif %}
+    <div class="fuss ist-fest"><button class="knopf ist-haupt" type="submit">Speichern</button></div>
+  </form>
+</main>
+{% endblock %}

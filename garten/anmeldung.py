@@ -31,7 +31,8 @@ bp = Blueprint("anmeldung", __name__)
 
 MIN_PASSWORT = 10
 # Ohne Anmeldung erreichbar. Statische Dateien enthalten keine Gartendaten.
-OFFEN = {"anmeldung.anmelden", "static", "seiten.health", "seiten.manifest", "seiten.sw", "seiten.offline"}
+OFFEN = {"anmeldung.anmelden", "static", "seiten.health", "seiten.manifest", "seiten.sw", "seiten.offline",
+         "aufgaben.kalender_datei"}
 # Wird geprüft, wenn es den Benutzernamen nicht gibt, damit die Antwort gleich lange dauert.
 _LEERER_HASH = generate_password_hash(secrets.token_hex(16))
 
@@ -69,6 +70,19 @@ def _lade_nutzer() -> None:
 
 def _pruefen():
     _lade_nutzer()
+    angemeldet = g.nutzer is not None
+
+    # Zuerst die Anmeldung. Ein Handy, das nach abgelaufener Sitzung etwas nachsendet, bekommt so
+    # die klare Antwort „nicht angemeldet“ und behält den Eintrag, bis man sich neu angemeldet hat.
+    if not angemeldet and request.endpoint not in OFFEN:
+        if _will_json():
+            return jsonify(fehler="Nicht angemeldet."), 401
+        weiter = request.full_path.rstrip("?") if request.method == "GET" else None
+        return redirect(url_for("anmeldung.anmelden", weiter=weiter if weiter != "/" else None))
+
+    # Nur Angemeldete laden Fotos und Videos hoch. Alle anderen schicken höchstens das Anmeldeformular.
+    if not angemeldet and (request.content_length or 0) > 64 * 1024:
+        abort(413)
 
     if request.method not in ("GET", "HEAD", "OPTIONS"):
         gesendet = request.headers.get("X-CSRF-Token") or request.form.get("csrf", "")
@@ -77,13 +91,7 @@ def _pruefen():
             if _will_json():
                 return jsonify(fehler="Die Sitzung ist abgelaufen. Bitte die Seite neu laden."), 400
             abort(400, "Die Sitzung ist abgelaufen. Bitte die Seite neu laden.")
-
-    if request.endpoint in OFFEN or g.nutzer is not None:
-        return None
-    if _will_json():
-        return jsonify(fehler="Nicht angemeldet."), 401
-    weiter = request.full_path.rstrip("?") if request.method == "GET" else None
-    return redirect(url_for("anmeldung.anmelden", weiter=weiter if weiter != "/" else None))
+    return None
 
 
 def nur_meister(ansicht):

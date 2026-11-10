@@ -1,8 +1,9 @@
 // Service Worker: macht die App installierbar und zeigt ohne Netz eine verständliche Seite.
-// Gartendaten werden hier nicht gespeichert. Nur die Hülle der App und die Luftbildkacheln.
+// Gartendaten werden hier nicht gespeichert. Nur die Hülle der App, die Luftbildkacheln und Fotos.
 
-const HUELLE = 'garten-huelle-1';
+const HUELLE = 'garten-huelle-2';
 const KACHELN = 'garten-kacheln-1';
+const FOTOS = 'garten-fotos-1';
 const OHNE_NETZ = '/offline';
 
 self.addEventListener('install', (ereignis) => {
@@ -15,13 +16,25 @@ self.addEventListener('install', (ereignis) => {
 });
 
 self.addEventListener('activate', (ereignis) => {
+  const behalten = [HUELLE, KACHELN, FOTOS];
   ereignis.waitUntil(
     caches
       .keys()
-      .then((namen) => Promise.all(namen.filter((n) => n !== HUELLE && n !== KACHELN).map((n) => caches.delete(n))))
+      .then((namen) => Promise.all(namen.filter((n) => !behalten.includes(n)).map((n) => caches.delete(n))))
       .then(() => self.clients.claim()),
   );
 });
+
+// Was sich nie ändert, wird einmal geholt und bleibt dann auf dem Handy.
+function ausSpeicher(name, anfrage) {
+  return caches.open(name).then(async (speicher) => {
+    const treffer = await speicher.match(anfrage);
+    if (treffer) return treffer;
+    const antwort = await fetch(anfrage);
+    if (antwort.status === 200) speicher.put(anfrage, antwort.clone());
+    return antwort;
+  });
+}
 
 self.addEventListener('fetch', (ereignis) => {
   const anfrage = ereignis.request;
@@ -29,16 +42,13 @@ self.addEventListener('fetch', (ereignis) => {
   if (anfrage.method !== 'GET' || adresse.origin !== self.location.origin) return;
 
   if (adresse.pathname.startsWith('/kacheln/')) {
-    // Luftbild ändert sich nicht: einmal geladen, bleibt es auf dem Handy.
-    ereignis.respondWith(
-      caches.open(KACHELN).then(async (speicher) => {
-        const treffer = await speicher.match(anfrage);
-        if (treffer) return treffer;
-        const antwort = await fetch(anfrage);
-        if (antwort.ok) speicher.put(anfrage, antwort.clone());
-        return antwort;
-      }),
-    );
+    ereignis.respondWith(ausSpeicher(KACHELN, anfrage));
+    return;
+  }
+
+  // Fotos, aber keine Videos: die werden in Stücken abgerufen und wären zu groß.
+  if (adresse.pathname.startsWith('/medien/') && adresse.pathname.endsWith('.jpg') && !anfrage.headers.has('range')) {
+    ereignis.respondWith(ausSpeicher(FOTOS, anfrage));
     return;
   }
 

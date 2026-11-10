@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf with context %}
+{% set ohne_leiste = true %}
+{% block titel %}Eigene Gartenfläche{% endblock %}
+{% block kopf %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">{% endblock %}
+{% block inhalt %}
+<main class="seite ist-formular">
+  {{ kopf("Eigene Gartenfläche", zurueck=url_for('seiten.mehr'), klein=garten.name) }}
+  <form class="formular inhalt" data-senden action="{{ url_for('gaerten.flaeche_speichern', garten_id=garten.id) }}" id="flaeche-form" novalidate>
+    <p class="leise">Passt das Flurstück nicht zum Garten, zeichne die Fläche selbst: Punkt für Punkt unter dem Fadenkreuz oder indem du die Grenze mit dem Handy abgehst.</p>
+    {% include "_editor.html" %}
+    <p class="hinweis">Das ist eine Orientierungsmessung und keine amtliche Vermessung. Das GPS im Handy liegt meist 3 bis 10 Meter daneben.</p>
+    <div class="fuss ist-fest"><button class="knopf ist-haupt" type="submit">Fläche speichern</button></div>
+  </form>
+  {% if hat_eigene %}
+  <form class="inhalt" data-senden data-frage="Die eigene Fläche löschen? Dann gilt wieder die Grenze der Flurstücke." action="{{ url_for('gaerten.flaeche_speichern', garten_id=garten.id) }}">
+    <input type="hidden" name="entfernen" value="1">
+    <button class="knopf ist-schlicht" type="submit">Eigene Fläche löschen</button>
+  </form>
+  {% endif %}
+</main>
+<script type="application/json" id="daten">{{ daten|tojson }}</script>
+{% endblock %}
+{% block skripte %}
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/flaeche.js') }}"></script>
+{% endblock %}

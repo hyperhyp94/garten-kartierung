@@ -117,3 +117,14 @@ def test_sicherheits_kopfzeilen(client):
     assert "frame-ancestors 'none'" in antwort.headers["Content-Security-Policy"]
     assert antwort.headers["X-Content-Type-Options"] == "nosniff"
     assert antwort.headers["Cache-Control"] == "no-store"
+
+
+def test_ohne_anmeldung_kein_upload(client):
+    import io
+    gross = {"bestand_id": "1", "typ": "beobachtung", "bild": (io.BytesIO(b"\xff\xd8\xff" + b"0" * 200_000), "f.jpg")}
+    # Die App am Handy muss „nicht angemeldet“ erfahren, damit sie den Eintrag behält und später sendet.
+    antwort = client.post("/api/eintraege", data=gross, content_type="multipart/form-data")
+    assert antwort.status_code == 401
+    # Am Anmeldeformular selbst wird nichts Großes angenommen.
+    gross["bild"] = (io.BytesIO(b"0" * 200_000), "f.jpg")
+    assert client.post("/anmelden", data=gross, content_type="multipart/form-data").status_code == 413

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf, symbol with context %}
+{% set aktiv = 'seiten.mehr' %}
+{% block titel %}Lexikon{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  {{ kopf("Lexikon", zurueck=url_for('seiten.mehr'), klein="Typische Pflanzen für Feggendorf") }}
+  <div class="inhalt">
+    <p class="hinweis">Alle Angaben sind Richtwerte aus allgemeinem Gartenwissen. Bitte vor Ort prüfen.</p>
+    <div class="filterzeile abstand" data-filter="#lexikon">
+      <label class="suchfeld ist-flach">{{ symbol("suche") }}<input type="search" placeholder="Suchen" aria-label="Lexikon durchsuchen" data-filter-text></label>
+    </div>
+    <div class="karte-flaeche" id="lexikon">
+      {% for e in lexikon %}
+      <a class="zeile zeile-trenner" href="{{ url_for('bestand.lexikon_eintrag', lexikon_id=e.id) }}" data-text="{{ (e.name ~ ' ' ~ e.botanisch ~ ' ' ~ e.kategorie)|lower }}">
+        <span class="zeile-text"><strong>{{ e.name }}</strong><span class="leise klein">{{ e.kategorie }}{% if e.botanisch %} · <i>{{ e.botanisch }}</i>{% endif %}</span></span>
+        {{ symbol("weiter", "leise") }}
+      </a>
+      {% endfor %}
+    </div>
+    <p class="leise ruhe" data-filter-leer hidden>Nichts gefunden.</p>
+  </div>
+</main>
+{% endblock %}

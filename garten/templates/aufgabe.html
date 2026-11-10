@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf, symbol, medien_raster with context %}
+{% set ohne_leiste = true %}
+{% block titel %}{{ a.titel }}{% endblock %}
+{% block inhalt %}
+<main class="seite ist-formular">
+  {{ kopf(a.titel, zurueck=url_for('aufgaben.heute_seite'), klein=a.bestand_name) }}
+  <div class="inhalt">
+    {% if a.erledigt_am %}
+    <p class="hinweis">{{ symbol("haken") }} <span>Erledigt am {{ a.erledigt_am|datum }}.</span></p>
+    {% else %}
+    <p class="grund-zeile stufe-{{ stufe }}"><span class="stufe-marke">{{ stufe_wort }}</span>{{ grund }}</p>
+    {% endif %}
+    <p class="leise klein">Fällig am {{ a.faellig_am|datum }}{% if intervall %} · {{ intervall }}{% endif %}</p>
+    {% if a.hinweis %}<p class="notiz">{{ a.hinweis }}</p>{% endif %}
+
+    {% if anleitung %}
+    <h2 class="rubrik">Anleitung</h2>
+    <div class="karte-flaeche anleitung">
+      <ol class="schritte">
+        {% for schritt in anleitung.schritte.splitlines() %}<li>{{ schritt }}</li>{% endfor %}
+      </ol>
+      {% if anleitung.werkzeug %}<p><strong>Werkzeug</strong><br>{{ anleitung.werkzeug }}</p>{% endif %}
+      {% if anleitung.sicherheit %}<p class="sicherheit"><strong>Sicherheit</strong><br>{{ anleitung.sicherheit }}</p>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if not a.erledigt_am %}
+    <h2 class="rubrik">Vorher-Foto</h2>
+    {{ medien_raster(vorher) }}
+    <form data-senden data-sofort action="{{ url_for('eintraege.vorher_foto', aufgabe_id=a.id) }}">
+      <div data-foto-feld data-kennzeichen-fest="vorher">
+        <ul class="foto-liste" data-liste hidden></ul>
+        <label class="knopf">{{ symbol("kamera") }} {{ "Noch ein Vorher-Foto" if vorher else "Vorher-Foto aufnehmen" }}<input type="file" accept="image/*" capture="environment" class="nur-vorlesen" data-bilder></label>
+      </div>
+    </form>
+
+    <h2 class="rubrik">Verschieben</h2>
+    <div class="dreier">
+      {% for tage, text in [(7, "1 Woche"), (14, "2 Wochen"), (30, "1 Monat")] %}
+      <form data-senden action="{{ url_for('aufgaben.verschieben', aufgabe_id=a.id) }}"><input type="hidden" name="tage" value="{{ tage }}"><button class="knopf ist-klein" type="submit">{{ text }}</button></form>
+      {% endfor %}
+    </div>
+
+    {% if ist_meister %}
+    <form data-senden action="{{ url_for('aufgaben.festlegen', aufgabe_id=a.id) }}" class="abstand">
+      <input type="hidden" name="fest" value="{{ 0 if a.fest_jetzt else 1 }}">
+      <button class="knopf" type="submit">{{ "Festlegung „Jetzt“ aufheben" if a.fest_jetzt else "Als „Jetzt“ festlegen" }}</button>
+    </form>
+    {% endif %}
+    {% endif %}
+
+    <h2 class="rubrik">Verwalten</h2>
+    <div class="karte-flaeche">
+      <a class="zeile" href="{{ url_for('bestand.detail', bestand_id=a.bestand_id) }}"><span class="zeile-symbol">{{ symbol("bestand") }}</span><span class="zeile-text"><strong>{{ a.bestand_name }} öffnen</strong></span>{{ symbol("weiter", "leise") }}</a>
+      {% if not a.erledigt_am %}
+      <a class="zeile zeile-trenner" href="{{ url_for('aufgaben.aufgabe_bearbeiten', aufgabe_id=a.id) }}"><span class="zeile-symbol">{{ symbol("stift") }}</span><span class="zeile-text"><strong>Aufgabe ändern</strong></span>{{ symbol("weiter", "leise") }}</a>
+      {% endif %}
+      <form data-senden data-frage="Diese Aufgabe wirklich löschen?" action="{{ url_for('aufgaben.loeschen', aufgabe_id=a.id) }}" class="zeile-trenner">
+        <button class="zeile ist-knopf" type="submit"><span class="zeile-symbol ist-rot">{{ symbol("muell") }}</span><span class="zeile-text"><strong>Aufgabe löschen</strong></span></button>
+      </form>
+    </div>
+
+    {% if not a.erledigt_am %}
+    <div class="fuss ist-fest">
+      <a class="knopf ist-haupt" href="{{ url_for('eintraege.neu', aufgabe=a.id) }}">{{ symbol("haken") }} Erledigt</a>
+    </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

@@ -7,7 +7,19 @@ Web-App fürs Handy, um einen Garten zu kartieren und die Pflege über Jahre gem
 
 ## Stand
 
-Stufe 1 von 5 ist fertig. Man kann sich anmelden, einen Garten anlegen, das Grundstück über Flurstücke auf dem Luftbild auswählen und die Karte mit Grenze öffnen. Der Kartenausschnitt lässt sich als Start merken, und die App lässt sich auf dem Startbildschirm installieren. Pflanzen, Aufgaben und alles Weitere folgen in den Stufen 2 bis 5.
+Alle fünf Stufen aus dem Plan sind umgesetzt.
+
+| Bereich | Was geht |
+|---|---|
+| Heute | Aufgaben nach Dringlichkeit (Jetzt, Bald, Später) mit Begründung, offene Fragen, neue Antworten, Hinweis auf den Rundgang |
+| Karte | Luftbild mit Gartengrenze, Pflanzen und Objekte in der Farbe ihres Zustands, eigener Standort, Flurstücke |
+| Bestand | Pflanzen und Objekte erfassen mit Foto, Lexikon und Fadenkreuz, als Punkt, Linie oder Fläche |
+| Pflege | Aufgaben mit Anleitung, Erledigen mit Vorher und Nachher, Folgetermine, Rundgang von Pflanze zu Pflanze |
+| Zusammenarbeit | Frage mit Foto, Antwort mit Zeichnung im Bild, Wissen, Beobachtungen im Jahresvergleich, Zustandsverlauf |
+| Vermessung | Abstände und Flächen messen, eigene Gartenfläche zeichnen oder mit GPS abgehen |
+| Kalender | Pflegetermine abonnieren oder herunterladen, je zwei Erinnerungen |
+
+Lexikon und Anleitungen sind Richtwerte aus allgemeinem Gartenwissen und in der App so gekennzeichnet. Johannes kann jede Anleitung anpassen.
 
 ## Auf dem Raspberry Pi einrichten
 
@@ -43,6 +55,8 @@ Der Browser gibt den Standort nur über HTTPS frei, und von unterwegs ist der Pi
 cloudflared tunnel --url http://localhost:5113
 ```
 
+Über den Tunnel lassen sich nach meinem Stand höchstens 100 MB pro Upload schicken. Größere Videos (bis 200 MB) gehen nur im WLAN zu Hause.
+
 Diese Adresse ändert sich bei jedem Start. Eine App auf dem Startbildschirm ist an ihre Adresse gebunden, deshalb braucht der Dauerbetrieb eine feste Adresse. Dafür gibt es bei Cloudflare benannte Tunnel mit eigener Domain:
 
 ```bash
@@ -60,10 +74,11 @@ Alles, was beim Betrieb entsteht, liegt im Ordner `instance/` und gehört nicht 
 |---|---|
 | `instance/garten.db` | Die Datenbank |
 | `instance/secret_key` | Schlüssel für die Anmeldung, wird beim ersten Start erzeugt |
+| `instance/uploads/` | Alle Fotos und Videos |
 | `instance/kacheln/` | Zwischengespeichertes Luftbild, darf jederzeit gelöscht werden |
 | `instance/sicherung/` | Die letzten 14 Sicherungen der Datenbank |
 
-Die Sicherung liegt auf derselben Speicherkarte wie die Datenbank. Sie schützt vor Fehlern, nicht vor einer kaputten Karte. Den Ordner `instance/` deshalb ab und zu auf ein anderes Gerät kopieren.
+Die nächtliche Sicherung betrifft nur die Datenbank und liegt auf derselben Speicherkarte. Sie schützt vor Fehlern, nicht vor einer kaputten Karte, und die Fotos sind nicht dabei. Den ganzen Ordner `instance/` deshalb regelmäßig auf ein anderes Gerät kopieren.
 
 ## Aktualisieren
 
@@ -85,10 +100,10 @@ Die Datenbank bringt sich beim Start selbst auf den neuesten Stand.
 
 | Ordner | Inhalt |
 |---|---|
-| `garten/` | Die App: Anmeldung, Gärten, Karte, Seiten |
+| `garten/` | Die App: Anmeldung, Gärten, Karte, Bestand, Einträge, Aufgaben |
 | `garten/templates/` | Die Seiten |
 | `garten/static/` | Gestaltung, JavaScript, Symbole und die Kartenbibliothek Leaflet |
-| `data/` | Flurstücke der Gemarkung Feggendorf |
+| `data/` | Flurstücke der Gemarkung Feggendorf, Lexikon, Vorlagen für Anleitungen |
 | `tests/` | Automatische Tests |
 | `deploy/` | Dienste für den Raspberry Pi |
 

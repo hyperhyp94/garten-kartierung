@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf, symbol with context %}
+{% set aktiv = 'seiten.mehr' %}
+{% block titel %}Kalender{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  {{ kopf("Kalender", zurueck=url_for('seiten.mehr'), klein=garten.name) }}
+  <div class="inhalt">
+    <p class="leise">{{ anzahl }} {{ "offener Pflegetermin" if anzahl == 1 else "offene Pflegetermine" }}. Jeder Termin erinnert dich zweimal: einen Tag vorher und eine Stunde vorher.</p>
+    <a class="knopf ist-haupt abstand" href="{{ abo }}">{{ symbol("kalender") }} Im Handy-Kalender abonnieren</a>
+    <p class="leise klein">Ein abonnierter Kalender hält sich selbst aktuell. Neue und erledigte Aufgaben erscheinen dort nach einiger Zeit von allein.</p>
+    <a class="knopf abstand" href="{{ adresse }}">Einmalig als Datei herunterladen</a>
+    <p class="leise klein">Die Datei enthält den Stand von jetzt und ändert sich danach nicht mehr.</p>
+    <p class="hinweis abstand">Die Adresse des Kalenders funktioniert ohne Anmeldung, damit die Kalender-App sie abrufen kann. Gib sie nur an Leute weiter, die die Termine sehen dürfen.</p>
+  </div>
+</main>
+{% endblock %}

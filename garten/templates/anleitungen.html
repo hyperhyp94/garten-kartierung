@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf, symbol with context %}
+{% set aktiv = 'seiten.mehr' %}
+{% block titel %}Anleitungen{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  {{ kopf("Anleitungen", zurueck=url_for('seiten.mehr')) }}
+  <div class="inhalt">
+    <p class="leise">Schritt für Schritt erklärt. {% if ist_meister %}Du kannst jede Anleitung anpassen.{% else %}Johannes pflegt die Anleitungen.{% endif %}</p>
+    {% if ist_meister %}<a class="knopf abstand" href="{{ url_for('aufgaben.anleitung_neu') }}">{{ symbol("plus") }} Neue Anleitung</a>{% endif %}
+    <div class="karte-flaeche abstand">
+      {% for a in anleitungen %}
+      <a class="zeile{% if not loop.first %} zeile-trenner{% endif %}" href="{{ url_for('aufgaben.anleitung', anleitung_id=a.id) }}">
+        <span class="zeile-text"><strong>{{ a.titel }}</strong><span class="leise klein">{{ zeitraum(a.monat_von, a.monat_bis) or "Ganzjährig" }}</span></span>
+        {{ symbol("weiter", "leise") }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}

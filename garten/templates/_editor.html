@@ -1,0 +1,17 @@
+{# Karte mit Fadenkreuz, auf der man einen Punkt, eine Linie oder eine Fläche festlegt. #}
+<div class="editor" id="editor">
+  <div class="editor-karte">
+    <div id="editor-karte" class="editor-flaeche" role="application" aria-label="Karte zum Festlegen der Lage"></div>
+    <span class="fadenkreuz" aria-hidden="true"></span>
+    <div class="editor-ecke">
+      <button class="rund ist-klein" type="button" data-editor="grund" aria-label="Zwischen Luftbild und Straßenkarte wechseln"><svg class="symbol" aria-hidden="true"><use href="#s-ebenen"/></svg></button>
+      <button class="rund ist-klein" type="button" data-editor="standort" aria-label="Zu meinem Standort" hidden><svg class="symbol" aria-hidden="true"><use href="#s-standort"/></svg></button>
+    </div>
+  </div>
+  <p class="editor-wert" data-editor="wert" aria-live="polite"></p>
+  <div class="editor-knoepfe" data-editor="punkte" hidden>
+    <button class="knopf ist-haupt" type="button" data-editor="setzen"><svg class="symbol" aria-hidden="true"><use href="#s-plus"/></svg> Punkt setzen</button>
+    <button class="knopf" type="button" data-editor="zurueck" disabled>Zurück</button>
+    <button class="knopf ist-ganz" type="button" data-editor="abgehen" hidden><svg class="symbol" aria-hidden="true"><use href="#s-schritte"/></svg> <span>Mit GPS abgehen</span></button>
+  </div>
+</div>

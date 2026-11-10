@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf with context %}
+{% set ohne_leiste = true %}
+{% set monate = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"] %}
+{% block titel %}{{ "Anleitung ändern" if a else "Neue Anleitung" }}{% endblock %}
+{% block inhalt %}
+<main class="seite ist-formular">
+  {{ kopf("Anleitung ändern" if a else "Neue Anleitung", zurueck=(url_for('aufgaben.anleitung', anleitung_id=a.id) if a else url_for('aufgaben.anleitungen'))) }}
+  <form class="formular inhalt" data-senden action="{{ ziel }}" novalidate>
+    <label class="feld"><span>Titel</span><input name="titel" maxlength="120" required autocomplete="off" value="{{ a.titel if a else '' }}"></label>
+    <label class="feld"><span>Schritte <small class="leise">(einer pro Zeile)</small></span><textarea name="schritte" rows="8" required>{{ a.schritte if a else '' }}</textarea></label>
+    <label class="feld"><span>Werkzeug</span><input name="werkzeug" maxlength="300" autocomplete="off" value="{{ a.werkzeug if a else '' }}"></label>
+    <label class="feld"><span>Sicherheit</span><textarea name="sicherheit" rows="2" maxlength="600">{{ a.sicherheit if a else '' }}</textarea></label>
+    <div class="zweier">
+      <label class="feld"><span>Von</span><select name="monat_von"><option value="">Ganzjährig</option>{% for m in monate %}<option value="{{ loop.index }}"{% if a and a.monat_von == loop.index %} selected{% endif %}>{{ m }}</option>{% endfor %}</select></label>
+      <label class="feld"><span>Bis</span><select name="monat_bis"><option value=""></option>{% for m in monate %}<option value="{{ loop.index }}"{% if a and a.monat_bis == loop.index %} selected{% endif %}>{{ m }}</option>{% endfor %}</select></label>
+    </div>
+    <label class="feld"><span>Üblicher Abstand</span><select name="intervall_monate">{% for wert, text in intervalle %}<option value="{{ wert or '' }}"{% if a and a.intervall_monate == wert %} selected{% endif %}>{{ text }}</option>{% endfor %}</select></label>
+    <div class="fuss ist-fest"><button class="knopf ist-haupt" type="submit">Speichern</button></div>
+  </form>
+</main>
+{% endblock %}

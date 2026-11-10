@@ -13,7 +13,7 @@ def test_ohne_garten_beginnt_man_beim_anlegen(sven):
 def test_garten_anlegen_mit_flurstueck(sven, garten):
     seite = sven.get("/karte").get_data(as_text=True)
     assert "Testgarten" in seite
-    assert "1.317 m²" in seite
+    assert "1.317 m² · 0 Einträge" in seite
     daten = json.loads(seite.split('id="daten">')[1].split("</script>")[0])
     assert daten["garten"]["flurstuecke"] == [FLURSTUECK]
     assert daten["garten"]["grenze"]["type"] == "MultiPolygon"
@@ -28,7 +28,7 @@ def test_flaeche_ist_die_summe_der_flurstuecke(sven):
         "/api/gaerten", json={"name": "Zwei", "flurstuecke": [FLURSTUECK, NACHBAR, FLURSTUECK]}, headers=sven.kopf
     )
     assert antwort.status_code == 201
-    assert "2.788 m² · 2 Flurstücke" in sven.get("/karte").get_data(as_text=True)
+    assert "2.788 m²" in sven.get("/karte").get_data(as_text=True)
 
 
 def test_eingaben_werden_geprueft(sven):
@@ -97,7 +97,9 @@ def test_beide_sehen_denselben_garten(app, sven, garten):
 
 
 def test_alle_bereiche_oeffnen(sven, garten):
-    for pfad in ("/heute", "/karte", "/bestand", "/mehr", f"/garten/{garten}/bearbeiten"):
+    for pfad in ("/heute", "/karte", "/bestand", "/mehr", "/lexikon", "/lexikon/apfel", "/anleitungen", "/anleitung/1",
+                 "/rundgang", "/messen", "/kalender", "/garten/flaeche", "/bestand/neu", "/bestand/neu?art=objekt",
+                 f"/garten/{garten}/bearbeiten"):
         assert sven.get(pfad).status_code == 200, pfad
-    assert sven.get("/").headers["Location"] == "/karte"
+    assert sven.get("/").headers["Location"] == "/heute"
     assert sven.get("/gibt-es-nicht").status_code == 404

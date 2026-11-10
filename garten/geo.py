@@ -120,3 +120,82 @@ def kachel_im_gebiet(rahmen: tuple, z: int, x: int, y: int, rand: float = 0.3) -
     x_min, y_min = kachel_fuer(west - dx, nord + dy, z)
     x_max, y_max = kachel_fuer(ost + dx, sued - dy, z)
     return x_min - 1 <= x <= x_max + 1 and y_min - 1 <= y <= y_max + 1
+
+
+ERDRADIUS = 6371008.8  # mittlerer Erdradius in Metern
+MAX_PUNKTE = 500
+
+
+def abstand_m(a, b) -> float:
+    """Entfernung zweier Punkte [Länge, Breite] in Metern."""
+    lon1, lat1, lon2, lat2 = map(math.radians, (a[0], a[1], b[0], b[1]))
+    h = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
+    return 2 * ERDRADIUS * math.asin(math.sqrt(h))
+
+
+def laenge_m(punkte) -> float:
+    return sum(abstand_m(a, b) for a, b in zip(punkte, punkte[1:]))
+
+
+def flaeche_m2(ring) -> float:
+    """Fläche eines Rings in Quadratmetern. Für Gartengröße auf weit unter ein Prozent genau."""
+    breite0 = math.radians(sum(p[1] for p in ring) / len(ring))
+    eben = [(ERDRADIUS * math.radians(p[0]) * math.cos(breite0), ERDRADIUS * math.radians(p[1])) for p in ring]
+    summe = sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in zip(eben, eben[1:] + eben[:1]))
+    return abs(summe) / 2
+
+
+def pruefe_geometrie(roh, rahmen: tuple) -> dict:
+    """Prüft eine gezeichnete Geometrie und rechnet Ankerpunkt und Maß aus.
+
+    Gibt {form, geometrie, lat, lon, mass, umfang} zurück. Löst ValueError aus, wenn etwas nicht passt.
+    """
+    if not isinstance(roh, dict):
+        raise ValueError("keine Geometrie")
+    art, koordinaten = roh.get("type"), roh.get("coordinates")
+    if art == "Point":
+        punkte = [koordinaten]
+    elif art == "LineString":
+        punkte = koordinaten
+    elif art == "Polygon":
+        punkte = koordinaten[0] if koordinaten else None
+    else:
+        raise ValueError("unbekannte Form")
+    if not isinstance(punkte, list) or not punkte or len(punkte) > MAX_PUNKTE:
+        raise ValueError("Punkte fehlen")
+
+    west, sued, ost, nord = rahmen
+    rand = 0.02
+    sauber = []
+    for p in punkte:
+        if not (isinstance(p, list) and len(p) >= 2 and all(isinstance(w, (int, float)) for w in p[:2])):
+            raise ValueError("Punkt nicht lesbar")
+        lon, lat = round(float(p[0]), STELLEN), round(float(p[1]), STELLEN)
+        if not (west - rand <= lon <= ost + rand and sued - rand <= lat <= nord + rand):
+            raise ValueError("außerhalb")
+        if not sauber or sauber[-1] != [lon, lat]:
+            sauber.append([lon, lat])
+
+    if art == "Point":
+        lon, lat = sauber[0]
+        return {"form": "punkt", "geometrie": {"type": "Point", "coordinates": [lon, lat]}, "lat": lat, "lon": lon,
+                "mass": None, "umfang": None}
+    if art == "LineString":
+        if len(sauber) < 2:
+            raise ValueError("zu wenige Punkte")
+        mitte = sauber[len(sauber) // 2]
+        return {"form": "linie", "geometrie": {"type": "LineString", "coordinates": sauber}, "lat": mitte[1],
+                "lon": mitte[0], "mass": laenge_m(sauber), "umfang": None}
+    if len(sauber) > 1 and sauber[0] == sauber[-1]:
+        sauber.pop()
+    if len(sauber) < 3:
+        raise ValueError("zu wenige Punkte")
+    ring = sauber + [sauber[0]]
+    return {
+        "form": "flaeche",
+        "geometrie": {"type": "Polygon", "coordinates": [ring]},
+        "lat": sum(p[1] for p in sauber) / len(sauber),
+        "lon": sum(p[0] for p in sauber) / len(sauber),
+        "mass": flaeche_m2(sauber),
+        "umfang": laenge_m(ring),
+    }

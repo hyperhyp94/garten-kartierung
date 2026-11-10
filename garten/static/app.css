@@ -847,3 +847,1247 @@ summary.zeile:active {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* =====================================================================
+   Stufen 2 bis 5: Bestand, Einträge, Aufgaben, Rundgang, Vermessung
+   ===================================================================== */
+
+:root {
+  --z0: #8a938c;
+  --z1: #b3261e;
+  --z2: #e0701a;
+  --z3: #c99a00;
+  --z4: #6ea33a;
+  --z5: #2e7d32;
+  --gelb: #c98a00;
+}
+
+.kopf-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.abstand {
+  margin-top: 16px;
+}
+
+.stapel {
+  display: grid;
+  gap: 10px;
+}
+
+.ruhe {
+  padding: 4px;
+}
+
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.feld select,
+.feld textarea {
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 14px;
+  border: 1.5px solid #cfc9bb;
+  border-radius: 14px;
+  background: var(--flaeche);
+  font-weight: 400;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.feld select {
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6860' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 22px;
+}
+
+.feld textarea {
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.feld select:focus,
+.feld textarea:focus {
+  outline: none;
+  border-color: var(--gruen-600);
+  box-shadow: 0 0 0 3px var(--gruen-100);
+}
+
+.feld input[type="date"] {
+  min-width: 0;
+}
+
+label.knopf {
+  position: relative;
+}
+
+.knopf.ist-klein {
+  min-height: 46px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+}
+
+.knopf.ist-ganz {
+  grid-column: 1 / -1;
+}
+
+.zweier,
+.dreier {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.dreier {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.hinweis {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.hinweis .symbol {
+  color: var(--gruen-700);
+}
+
+.zeile-symbol.ist-rot {
+  background: var(--rot-100);
+  color: var(--rot);
+}
+
+.haken {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  font-weight: 600;
+}
+
+.haken input {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin: 1px 0 0;
+  accent-color: var(--gruen-700);
+}
+
+/* ---------- Formularseiten ---------- */
+
+.seite.ist-formular {
+  padding-bottom: calc(110px + var(--unten));
+}
+
+.abschnitt {
+  display: grid;
+  gap: 12px;
+}
+
+.abschnitt > h2,
+.zustand-wahl legend {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.fuss.ist-fest {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 800;
+  margin: 0;
+  padding: 12px 20px calc(12px + var(--unten));
+  background: linear-gradient(to top, var(--sand) 70%, rgb(245 242 234 / 0));
+}
+
+.fuss.ist-fest .knopf {
+  max-width: 520px;
+  margin: 0 auto;
+  box-shadow: var(--schatten);
+}
+
+.aufklapp-schlicht summary {
+  min-height: 44px;
+  padding: 10px 0;
+  color: var(--gruen-700);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.aufklapp-schlicht[open] summary {
+  margin-bottom: 8px;
+}
+
+/* ---------- Zustand ---------- */
+
+.zustand {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--z0);
+  color: #fff;
+  font-weight: 800;
+}
+
+.z1 { --z: var(--z1); }
+.z2 { --z: var(--z2); }
+.z3 { --z: var(--z3); }
+.z4 { --z: var(--z4); }
+.z5 { --z: var(--z5); }
+
+.zustand[class*="z"] {
+  background: var(--z, var(--z0));
+}
+
+.zustand-wahl {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.zustand-wahl legend {
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.zustand-felder {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.zustand-felder label {
+  position: relative;
+}
+
+.zustand-felder input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.zustand-felder span {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 2px 8px;
+  border: 2px solid var(--linie);
+  border-radius: 14px;
+  background: var(--flaeche);
+  font-size: 0.68rem;
+  font-weight: 650;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--leise);
+}
+
+.zustand-felder b {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--z);
+  color: #fff;
+  font-size: 1.15rem;
+}
+
+.zustand-felder input:checked + span {
+  border-color: var(--z);
+  background: color-mix(in srgb, var(--z) 14%, #fff);
+  color: var(--text);
+}
+
+.zustand-felder input:focus-visible + span {
+  outline: 3px solid var(--sonne);
+}
+
+.zustand-gross {
+  display: grid;
+  justify-items: center;
+  flex: none;
+  min-width: 72px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  background: var(--z, var(--z0));
+  color: #fff;
+  line-height: 1.1;
+}
+
+.zustand-gross b {
+  font-size: 1.7rem;
+}
+
+.zustand-gross span {
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+/* ---------- Karten in Listen: Aufgaben, Bestand ---------- */
+
+.aufgabe {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 10px 12px 10px 10px;
+  border: 1px solid var(--linie);
+  border-left: 6px solid var(--linie);
+  border-radius: var(--rund);
+  background: var(--flaeche);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgb(20 40 28 / 0.06);
+}
+
+.aufgabe:active {
+  background: var(--gruen-100);
+}
+
+.aufgabe.stufe-jetzt {
+  border-left-color: var(--rot);
+}
+
+.aufgabe.stufe-bald {
+  border-left-color: var(--gelb);
+}
+
+.aufgabe.stufe-spaeter {
+  border-left-color: #b9c2bb;
+}
+
+.aufgabe strong {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.25;
+}
+
+.grund {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--leise);
+}
+
+.stufe-jetzt .grund {
+  color: var(--rot);
+}
+
+.stufe-bald .grund {
+  color: #8a5f00;
+}
+
+.bildchen {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--gruen-100);
+  color: var(--gruen-700);
+}
+
+.bildchen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.zaehler {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--linie);
+  color: var(--text);
+  font-size: 0.75rem;
+  letter-spacing: 0;
+}
+
+.hinweis-karte {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--rund);
+  background: var(--gruen-700);
+  color: #fff;
+  text-decoration: none;
+}
+
+.hinweis-karte .zeile-symbol {
+  background: rgb(255 255 255 / 0.16);
+  color: #fff;
+}
+
+.spaeter summary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.spaeter summary::-webkit-details-marker {
+  display: none;
+}
+
+.spaeter summary .symbol {
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+}
+
+.spaeter[open] summary .symbol {
+  transform: rotate(90deg);
+}
+
+.filterzeile {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.suchfeld.ist-flach {
+  flex: none;
+  box-shadow: none;
+  border: 1.5px solid #cfc9bb;
+}
+
+.wahl.ist-drei {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.schalter-zeile.klein {
+  min-height: 40px;
+  font-size: 0.9rem;
+}
+
+/* ---------- Plus-Knopf und sein Blatt ---------- */
+
+.plus {
+  position: fixed;
+  right: 16px;
+  bottom: calc(var(--leiste) + var(--unten) + 18px);
+  z-index: 850;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: var(--gruen-700);
+  color: #fff;
+  box-shadow: 0 4px 14px rgb(20 40 28 / 0.35);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.plus .symbol {
+  width: 30px;
+  height: 30px;
+  stroke-width: 2.4;
+}
+
+.plus:active {
+  background: var(--gruen-900);
+}
+
+.plus.ist-eingereiht {
+  position: static;
+  width: 56px;
+  height: 56px;
+  margin-left: -2px;
+}
+
+.plus-wahl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.plus-wahl a,
+.schnellwahl a {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 4px 12px;
+  border-radius: 16px;
+  background: var(--sand);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+}
+
+.plus-wahl a:active,
+.schnellwahl a:active {
+  background: var(--gruen-100);
+}
+
+.plus-wahl span,
+.schnellwahl span {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gruen-700);
+  color: #fff;
+}
+
+.schnellwahl {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.schnellwahl a {
+  background: var(--flaeche);
+  border: 1px solid var(--linie);
+  font-size: 0.74rem;
+}
+
+/* ---------- Detailseite ---------- */
+
+.held {
+  position: relative;
+  height: 44vh;
+  max-height: 380px;
+  background: var(--gruen-700);
+}
+
+.held.ist-leer {
+  height: calc(var(--oben) + 76px);
+  background: none;
+}
+
+.held img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.held .rund {
+  position: absolute;
+  top: calc(var(--oben) + 12px);
+  left: 12px;
+}
+
+.titelzeile {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.notiz {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-left: 4px solid var(--sonne);
+  border-radius: 0 12px 12px 0;
+  background: var(--flaeche);
+  white-space: pre-line;
+}
+
+.grafik {
+  padding: 12px 12px 8px;
+}
+
+.grafik svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.grafik-raster {
+  stroke: var(--linie);
+  stroke-width: 1;
+}
+
+.grafik-linie {
+  fill: none;
+  stroke: var(--gruen-700);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.grafik-punkt {
+  fill: var(--z, var(--z0));
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.grafik-achse {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 4px 0;
+}
+
+.tabelle-rahmen {
+  overflow-x: auto;
+}
+
+.vergleich {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.vergleich th,
+.vergleich td {
+  padding: 11px 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.vergleich th:first-child {
+  text-align: left;
+}
+
+.vergleich thead th {
+  font-size: 0.8rem;
+  color: var(--leise);
+}
+
+.vergleich tbody tr {
+  border-top: 1px solid var(--linie);
+}
+
+.angaben {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 14px;
+  margin: 0;
+  padding: 14px 16px;
+}
+
+.aufklapp .angaben {
+  padding-top: 4px;
+}
+
+.angaben dt {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--leise);
+  padding-top: 2px;
+}
+
+.angaben dd {
+  margin: 0;
+}
+
+/* ---------- Verlauf ---------- */
+
+.verlauf {
+  display: grid;
+  gap: 10px;
+}
+
+.eintrag {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--linie);
+  border-radius: var(--rund);
+  background: var(--flaeche);
+}
+
+.eintrag .eintrag {
+  border-color: var(--gruen-100);
+  background: var(--gruen-100);
+}
+
+.eintrag.typ-frage {
+  border-left: 6px solid var(--sonne);
+}
+
+.eintrag-kopf {
+  display: grid;
+}
+
+.eintrag-zustand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.eintrag-zustand .zustand {
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+}
+
+.eintrag-text {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.eintrag-fuss {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eintrag-fuss .knopf {
+  width: auto;
+}
+
+.eintrag-fuss:empty {
+  display: none;
+}
+
+.eintrag-loeschen {
+  margin-left: auto;
+}
+
+.eintrag-loeschen .knopf {
+  min-height: 40px;
+  padding: 6px 10px;
+  color: var(--leise);
+}
+
+.eintrag-loeschen .symbol {
+  width: 20px;
+  height: 20px;
+}
+
+.hinweis-klein {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: #8a5f00;
+}
+
+.medien {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 6px;
+}
+
+.medien a {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--gruen-100);
+}
+
+.medien img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.medien video {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-height: 60vh;
+  border-radius: 10px;
+  background: #000;
+}
+
+.medien-marke {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgb(12 24 16 / 0.75);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.grossbild {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgb(8 14 10 / 0.96);
+}
+
+.grossbild[open] {
+  display: grid;
+  place-items: center;
+}
+
+.grossbild img {
+  max-width: 100%;
+  max-height: 100dvh;
+  object-fit: contain;
+}
+
+.grossbild .rund {
+  position: fixed;
+  top: calc(var(--oben) + 12px);
+  right: 12px;
+}
+
+/* ---------- Fotos in Formularen ---------- */
+
+.foto-feld {
+  display: grid;
+  gap: 10px;
+}
+
+.foto-feld.laedt {
+  opacity: 0.6;
+}
+
+.foto-knoepfe {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.foto-liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.foto-liste li {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--gruen-100);
+}
+
+.foto-liste li.ist-video {
+  display: grid;
+  place-items: center;
+  width: auto;
+  height: 52px;
+  padding: 0 46px 0 14px;
+  font-weight: 650;
+}
+
+.foto-liste img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.foto-weg {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(12 24 16 / 0.72);
+  color: #fff;
+  cursor: pointer;
+}
+
+.foto-weg .symbol {
+  width: 18px;
+  height: 18px;
+}
+
+.foto-marke {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  min-height: 30px;
+  padding: 2px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(12 24 16 / 0.72);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.foto-marke.ist-an {
+  background: var(--sonne);
+  color: #1a1a1a;
+}
+
+/* ---------- Chips ---------- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chips.ist-kasten {
+  max-height: 168px;
+  padding: 10px;
+  overflow-y: auto;
+  border: 1.5px solid var(--linie);
+  border-radius: 14px;
+  background: var(--flaeche);
+}
+
+.chip {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1.5px solid var(--linie);
+  border-radius: 22px;
+  background: var(--flaeche);
+  color: var(--text);
+  font-weight: 650;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.chip input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.chip.ist-an,
+.chip:has(input:checked) {
+  border-color: var(--gruen-700);
+  background: var(--gruen-700);
+  color: #fff;
+}
+
+/* ---------- Karten-Editor mit Fadenkreuz ---------- */
+
+.editor {
+  display: grid;
+  gap: 10px;
+}
+
+.editor-karte {
+  position: relative;
+  height: min(52vh, 420px);
+  overflow: hidden;
+  border-radius: var(--rund);
+  border: 1px solid var(--linie);
+  isolation: isolate;
+}
+
+.editor-flaeche {
+  width: 100%;
+  height: 100%;
+}
+
+.fadenkreuz {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 500;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  pointer-events: none;
+  background:
+    linear-gradient(#fff, #fff) center / 2px 100% no-repeat,
+    linear-gradient(#fff, #fff) center / 100% 2px no-repeat;
+  filter: drop-shadow(0 0 1.5px #000) drop-shadow(0 0 1.5px #000);
+}
+
+.fadenkreuz::after {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 2px solid #ff5a36;
+  border-radius: 50%;
+  background: rgb(255 90 54 / 0.35);
+}
+
+.editor-ecke {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 500;
+  display: grid;
+  gap: 8px;
+}
+
+.rund.ist-klein {
+  width: 44px;
+  height: 44px;
+}
+
+.editor-wert {
+  font-weight: 700;
+}
+
+.editor-knoepfe {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 10px;
+}
+
+/* ---------- Aufgabe ---------- */
+
+.grund-zeile {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-weight: 650;
+}
+
+.stufe-marke {
+  padding: 3px 12px;
+  border-radius: 12px;
+  background: #b9c2bb;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.stufe-jetzt .stufe-marke {
+  background: var(--rot);
+}
+
+.stufe-bald .stufe-marke {
+  background: var(--gelb);
+}
+
+.anleitung {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.schritte {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: schritt;
+}
+
+.schritte li {
+  position: relative;
+  padding-left: 42px;
+  counter-increment: schritt;
+}
+
+.schritte li::before {
+  content: counter(schritt);
+  position: absolute;
+  left: 0;
+  top: -2px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--gruen-100);
+  color: var(--gruen-700);
+  font-weight: 800;
+}
+
+.sicherheit {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff6dc;
+}
+
+/* ---------- Frage und Zeichnen ---------- */
+
+.frage-karte {
+  padding: 14px;
+}
+
+.frage-bild {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.frage-bild img {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.zeichnen {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #0b120e;
+}
+
+.zeichnen[open] {
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+.zeichnen canvas {
+  place-self: center;
+  max-width: 100%;
+  max-height: calc(100dvh - 84px - var(--unten));
+  touch-action: none;
+}
+
+.zeichnen-leiste {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px calc(12px + var(--unten));
+  background: var(--flaeche);
+}
+
+.zeichnen-leiste .knopf {
+  width: auto;
+  flex: 1;
+  padding: 8px 6px;
+}
+
+.farbe {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--linie);
+  cursor: pointer;
+}
+
+.farbe[data-farbe="#ff3b30"] {
+  background: #ff3b30;
+}
+
+.farbe[data-farbe="#ffd60a"] {
+  background: #ffd60a;
+}
+
+.farbe.ist-an {
+  box-shadow: 0 0 0 3px var(--gruen-900);
+}
+
+/* ---------- Rundgang ---------- */
+
+.fortschritt {
+  height: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--linie);
+}
+
+.fortschritt span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--gruen-600);
+}
+
+.rundgang-karte img {
+  display: block;
+  width: 100%;
+  height: 30vh;
+  max-height: 260px;
+  object-fit: cover;
+}
+
+.rundgang-text {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+}
+
+.rundgang-text h2 {
+  font-size: 1.4rem;
+}
+
+/* ---------- Karte: Bestand ---------- */
+
+.objekt-marke span {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+.karten-zettel {
+  position: fixed;
+  left: 12px;
+  right: 84px;
+  bottom: calc(var(--leiste) + var(--unten) + 28px);
+  z-index: 520;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--rund);
+  background: var(--flaeche);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--schatten);
+}
+
+/* ---------- Ausgang ---------- */
+
+.ausgang {
+  position: fixed;
+  inset: calc(var(--oben) + 8px) 12px auto 12px;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 14px;
+  background: #fff6dc;
+  border: 1px solid #e9d59a;
+  font-weight: 650;
+  font-size: 0.9rem;
+  box-shadow: var(--schatten);
+}
+
+.ausgang .knopf {
+  width: auto;
+  flex: none;
+}

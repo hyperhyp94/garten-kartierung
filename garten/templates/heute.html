@@ -1,16 +1,77 @@
 {% extends "base.html" %}
-{% set aktiv = 'seiten.heute' %}
+{% from "_teile.html" import kopf, symbol, aufgabe_karte, bildchen, plus_knopf with context %}
+{% set aktiv = 'aufgaben.heute_seite' %}
 {% block titel %}Heute · {{ garten.name }}{% endblock %}
 {% block inhalt %}
 <main class="seite">
-  <header class="kopf"><div><p class="leise klein">{{ garten.name }}</p><h1>Heute</h1></div></header>
+  {{ kopf("Heute", klein=garten.name) }}
   <div class="inhalt">
+
+    {% if fragen %}
+    <h2 class="rubrik">Fragen an dich</h2>
+    <div class="stapel">
+      {% for f in fragen %}
+      <a class="aufgabe stufe-jetzt" href="{{ url_for('eintraege.neu', typ='antwort', antwort_auf=f.id) }}">
+        {{ bildchen(f.bild, "frage") }}
+        <span class="zeile-text"><strong>{{ f.text }}</strong><span class="leise klein">{{ f.von }} zu {{ f.bestand_name }} · {{ f.datum|datum }}</span></span>
+        {{ symbol("weiter", "leise") }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if antworten %}
+    <h2 class="rubrik">Neue Antworten</h2>
+    <div class="stapel">
+      {% for a in antworten %}
+      <a class="aufgabe" href="{{ url_for('bestand.detail', bestand_id=a.bestand_id) }}#e{{ a.antwort_auf }}">
+        <span class="bildchen">{{ symbol("frage") }}</span>
+        <span class="zeile-text"><strong>{{ a.text or "Antwort mit Bild" }}</strong><span class="leise klein">{{ a.von }} zu {{ a.bestand_name }} · {{ a.datum|datum }}</span></span>
+        {{ symbol("weiter", "leise") }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if rundgang_offen %}
+    <a class="hinweis-karte" href="{{ url_for('aufgaben.rundgang') }}">
+      <span class="zeile-symbol">{{ symbol("schritte") }}</span>
+      <span class="zeile-text"><strong>Rundgang</strong><span class="klein">{{ rundgang_offen }} {{ "Pflanze braucht" if rundgang_offen == 1 else "Pflanzen brauchen" }} einen aktuellen Zustand</span></span>
+      {{ symbol("weiter") }}
+    </a>
+    {% endif %}
+
+    {% if not bestand_anzahl %}
     <section class="leer">
-      <span class="leer-symbol"><svg class="symbol" aria-hidden="true"><use href="#s-heute"/></svg></span>
-      <h2>Noch keine Aufgaben</h2>
-      <p class="leise">Hier steht später, was im Garten als Nächstes dran ist, sortiert nach Dringlichkeit. Die Aufgaben kommen mit Stufe 3.</p>
-      <a class="knopf" href="{{ url_for('seiten.karte') }}">Zur Karte</a>
+      <span class="leer-symbol">{{ symbol("bestand") }}</span>
+      <h2>Der Garten ist noch leer</h2>
+      <p class="leise">Erfasse die erste Pflanze. Wählst du sie aus dem Lexikon, legt die App die passenden Pflegeaufgaben gleich mit an.</p>
+      <a class="knopf ist-haupt" href="{{ url_for('bestand.neu') }}">Erste Pflanze erfassen</a>
     </section>
+    {% elif not (gruppen.jetzt or gruppen.bald or gruppen.spaeter) %}
+    <section class="leer">
+      <span class="leer-symbol">{{ symbol("haken") }}</span>
+      <h2>Keine offenen Aufgaben</h2>
+      <p class="leise">Aufgaben legst du bei einer Pflanze an. Öffne sie im Bestand und tippe auf „Aufgabe hinzufügen“.</p>
+      <a class="knopf" href="{{ url_for('bestand.liste') }}">Zum Bestand</a>
+    </section>
+    {% else %}
+      {% for stufe in ("jetzt", "bald") %}
+      <h2 class="rubrik">{{ stufen[stufe] }} <span class="zaehler">{{ gruppen[stufe]|length }}</span></h2>
+      {% if gruppen[stufe] %}
+      <div class="stapel">{% for a in gruppen[stufe] %}{{ aufgabe_karte(a) }}{% endfor %}</div>
+      {% else %}
+      <p class="leise ruhe">{{ "Nichts Dringendes. Gut so." if stufe == "jetzt" else "In den nächsten 30 Tagen steht nichts an." }}</p>
+      {% endif %}
+      {% endfor %}
+      {% if gruppen.spaeter %}
+      <details class="spaeter">
+        <summary class="rubrik">Später <span class="zaehler">{{ gruppen.spaeter|length }}</span>{{ symbol("weiter", "aufklapp-pfeil") }}</summary>
+        <div class="stapel">{% for a in gruppen.spaeter %}{{ aufgabe_karte(a) }}{% endfor %}</div>
+      </details>
+      {% endif %}
+    {% endif %}
   </div>
+  {{ plus_knopf() }}
 </main>
 {% endblock %}

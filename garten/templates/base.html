@@ -22,9 +22,9 @@
   {% if nutzer and not ohne_leiste|default(false) %}
   <nav class="leiste" aria-label="Bereiche">
     {% for ziel, symbol, text in [
-      ('seiten.heute', 's-heute', 'Heute'),
+      ('aufgaben.heute_seite', 's-heute', 'Heute'),
       ('seiten.karte', 's-karte', 'Karte'),
-      ('seiten.bestand', 's-bestand', 'Bestand'),
+      ('bestand.liste', 's-bestand', 'Bestand'),
       ('seiten.mehr', 's-mehr', 'Mehr'),
     ] %}
     <a href="{{ url_for(ziel) }}" class="leiste-punkt{% if aktiv == ziel %} ist-aktiv{% endif %}"{% if aktiv == ziel %} aria-current="page"{% endif %}>
@@ -33,6 +33,29 @@
     </a>
     {% endfor %}
   </nav>
+  {% endif %}
+  {% if nutzer %}
+  <dialog class="blatt" id="plus-blatt" aria-labelledby="plus-titel">
+    <div class="blatt-griff" aria-hidden="true"></div>
+    <h2 id="plus-titel">Neu erfassen</h2>
+    <div class="plus-wahl">
+      <a href="{{ url_for('eintraege.neu', typ='beobachtung', bestand=plus_bestand|default(none)) }}"><span><svg class="symbol" aria-hidden="true"><use href="#s-kamera"/></svg></span>Foto oder Beobachtung</a>
+      <a href="{{ url_for('eintraege.neu', typ='massnahme', bestand=plus_bestand|default(none)) }}"><span><svg class="symbol" aria-hidden="true"><use href="#s-schere"/></svg></span>Maßnahme</a>
+      <a href="{{ url_for('eintraege.neu', typ='frage', bestand=plus_bestand|default(none)) }}"><span><svg class="symbol" aria-hidden="true"><use href="#s-frage"/></svg></span>Frage stellen</a>
+      <a href="{{ url_for('bestand.neu') }}" data-mit-ort><span><svg class="symbol" aria-hidden="true"><use href="#s-bestand"/></svg></span>Neue Pflanze</a>
+      <a href="{{ url_for('bestand.neu', art='objekt') }}" data-mit-ort><span><svg class="symbol" aria-hidden="true"><use href="#s-objekt"/></svg></span>Neues Objekt</a>
+      <a href="{{ url_for('aufgaben.rundgang') }}"><span><svg class="symbol" aria-hidden="true"><use href="#s-schritte"/></svg></span>Rundgang</a>
+    </div>
+    <form method="dialog"><button class="knopf ist-schlicht">Abbrechen</button></form>
+  </dialog>
+  <dialog class="grossbild" id="grossbild" aria-label="Foto">
+    <img alt="">
+    <form method="dialog"><button class="rund" aria-label="Schließen"><svg class="symbol" aria-hidden="true"><use href="#s-x"/></svg></button></form>
+  </dialog>
+  <div class="ausgang" id="ausgang" hidden>
+    <span id="ausgang-text"></span>
+    <button class="knopf ist-klein" type="button" id="ausgang-senden">Jetzt senden</button>
+  </div>
   {% endif %}
   <div id="meldung" class="meldung" role="status" aria-live="polite" hidden></div>
   <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>

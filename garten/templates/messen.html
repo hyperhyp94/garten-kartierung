@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_teile.html" import kopf with context %}
+{% set ohne_leiste = true %}
+{% block titel %}Messen{% endblock %}
+{% block kopf %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">{% endblock %}
+{% block inhalt %}
+<main class="seite ist-formular">
+  {{ kopf("Messen", zurueck=url_for('seiten.mehr'), klein=garten.name) }}
+  <div class="inhalt formular">
+    <p class="leise">Schiebe die Karte unter das Fadenkreuz und setze Punkte. Die App zeigt die Strecke und ab drei Punkten die umschlossene Fläche.</p>
+    {% include "_editor.html" %}
+    <p class="hinweis">Das ist eine Orientierungsmessung und keine amtliche Vermessung. Das GPS im Handy liegt meist 3 bis 10 Meter daneben.</p>
+  </div>
+</main>
+<script type="application/json" id="daten">{{ daten|tojson }}</script>
+{% endblock %}
+{% block skripte %}
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/messen.js') }}"></script>
+{% endblock %}
