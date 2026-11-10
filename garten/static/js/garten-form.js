@@ -37,9 +37,13 @@ document.getElementById('angaben').addEventListener('submit', (ereignis) => {
     nameFeld.focus();
     return;
   }
+  // Schritt 2 bekommt einen eigenen Eintrag im Verlauf. So führt die Zurück-Taste von Android
+  // und die Wischgeste am iPhone zu Schritt 1 und nicht aus dem Formular heraus.
+  history.pushState({ schritt: 2 }, '');
   zeigeSchritt(2);
 });
-document.getElementById('zurueck').addEventListener('click', () => zeigeSchritt(1));
+document.getElementById('zurueck').addEventListener('click', () => history.back());
+window.addEventListener('popstate', () => zeigeSchritt(history.state?.schritt === 2 ? 2 : 1));
 
 function zeigeSchritt(nummer) {
   schritt1.hidden = nummer !== 1;

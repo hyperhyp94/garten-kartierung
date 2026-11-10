@@ -64,7 +64,12 @@ const zurueckKnopf = document.getElementById('ansicht-zurueck');
 
 document.getElementById('ebenen-knopf').addEventListener('click', () => blatt.showModal());
 blatt.addEventListener('click', (ereignis) => {
-  if (ereignis.target === blatt) blatt.close(); // Tipp neben das Blatt schließt es
+  // Ein Tipp neben das Blatt schließt es. Ein Tipp zwischen zwei Knöpfen im Blatt nicht.
+  if (ereignis.target !== blatt) return;
+  const rahmen = blatt.getBoundingClientRect();
+  if (ereignis.clientY < rahmen.top || ereignis.clientX < rahmen.left || ereignis.clientX > rahmen.right) {
+    blatt.close();
+  }
 });
 
 function zeigeGrundwahl(name) {

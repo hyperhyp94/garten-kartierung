@@ -52,6 +52,7 @@ Die offenen Punkte aus den Anforderungen sind hier mit einem Vorschlag beantwort
 | Rollen | Beide dürfen alles erfassen. Nur Johannes ändert Anleitungen und legt eine Priorität von Hand fest. |
 | Ohne Netz | Kein vollständiger Offline-Betrieb. Stattdessen bleibt jede Eingabe samt Foto auf dem Handy gespeichert, bis sie wirklich gesendet ist, und lässt sich mit einem Tipper erneut senden. |
 | Wetter | Kommt nach Stufe 5, siehe „Später“. |
+| Handys | Ein Android-Gerät und ein iPhone. Jede Stufe wird in beiden Browsern geprüft (Chrome und Safari). Das iPhone braucht mindestens iOS 15.4 aus dem Jahr 2022. |
 
 ## Dringlichkeit
 
@@ -89,7 +90,7 @@ So wenig wie möglich, damit es auf dem Raspberry Pi einfach läuft und sich lei
 2. Seiten kommen fertig vom Server, dazu wenig eigenes JavaScript. Kein Build-Schritt, kein Node auf dem Pi.
 3. Leaflet für die Karte, lokal mitgeliefert.
 4. Die App lässt sich auf dem Startbildschirm installieren und startet dann ohne Browserleiste.
-5. Fotos werden schon auf dem Handy verkleinert, damit der Upload über Mobilfunk Sekunden dauert. Bilder bis 10 MB, Videos bis 200 MB, Videos werden unverändert gespeichert.
+5. Fotos werden schon auf dem Handy verkleinert, damit der Upload über Mobilfunk Sekunden dauert. Dabei werden sie in JPEG umgewandelt, sodass das Fotoformat des iPhones (HEIC) auf dem Pi keine Rolle spielt. Bilder bis 10 MB, Videos bis 200 MB, Videos werden unverändert gespeichert.
 6. Automatische Tests für Anmeldung und Rechte, Dringlichkeit, Folgetermin, Upload und Kalender-Export.
 7. Tägliche Sicherung der Datenbank und der Uploads auf dem Pi.
 
@@ -127,6 +128,5 @@ Keine amtliche Vermessung, keine Flurstücke außerhalb von Feggendorf, keine Re
 
 ## Offen
 
-1. Welche Handys benutzt ihr, iPhone oder Android? Das bestimmt, worauf zuerst getestet wird.
-2. Unter welcher Adresse ist der Tunnel erreichbar, und läuft er schon?
-3. Reicht das WLAN bis in den Garten, oder läuft dort alles über Mobilfunk?
+1. Unter welcher festen Adresse soll der Tunnel erreichbar sein? Ein Tunnel lässt sich öffnen, für die App auf dem Startbildschirm muss die Adresse aber gleich bleiben.
+2. Reicht das WLAN bis in den Garten, oder läuft dort alles über Mobilfunk?
