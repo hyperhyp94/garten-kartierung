@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% set ohne_leiste = true %}
+{% block titel %}Keine Verbindung{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  <div class="inhalt">
+    <section class="leer">
+      <span class="leer-symbol"><svg class="symbol" aria-hidden="true"><use href="#s-wolke"/></svg></span>
+      <h1>Keine Verbindung</h1>
+      <p class="leise">Der Garten ist gerade nicht erreichbar. Prüfe das Netz und versuche es noch einmal.</p>
+      <a class="knopf ist-haupt" href="/">Noch einmal versuchen</a>
+    </section>
+  </div>
+</main>
+{% endblock %}

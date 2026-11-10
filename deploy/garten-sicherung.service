@@ -1,0 +1,10 @@
+# Sichert die Datenbank. Wird von garten-sicherung.timer jede Nacht gestartet.
+
+[Unit]
+Description=Sicherung der Garten-Datenbank
+
+[Service]
+Type=oneshot
+User=pi
+WorkingDirectory=/home/pi/garten-kartierung
+ExecStart=/home/pi/garten-kartierung/.venv/bin/flask --app garten sicherung

@@ -1,0 +1,13 @@
+# Jede Nacht um 3 Uhr.
+#   sudo cp deploy/garten-sicherung.* /etc/systemd/system/
+#   sudo systemctl enable --now garten-sicherung.timer
+
+[Unit]
+Description=Tägliche Sicherung der Garten-Datenbank
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

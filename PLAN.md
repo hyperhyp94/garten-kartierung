@@ -45,7 +45,7 @@ Die offenen Punkte aus den Anforderungen sind hier mit einem Vorschlag beantwort
 | Thema | Entscheidung |
 |---|---|
 | Gartengrenze | Sie entsteht automatisch aus den angetippten Flurstücken. Eine eigene Fläche zeichnen kommt in Stufe 5. |
-| Karte | Luftbild als Standard, Straßenkarte zum Umschalten. Ob das offene Luftbild des Landes Niedersachsen technisch und von der Auflösung her passt, wird als Erstes in Stufe 1 geprüft. Falls nicht, startet die App mit der Straßenkarte. |
+| Karte | Luftbild als Standard, Straßenkarte zum Umschalten. Das offene Luftbild des Landes Niedersachsen ist geprüft und passt (20 cm pro Bildpunkt, frei nutzbar mit Quellenangabe). Der Pi speichert jede Kachel zwischen, damit die Karte schnell bleibt. Fällt das Luftbild aus, zeigt die App von selbst die Straßenkarte. |
 | Position einer Pflanze | Per Fadenkreuz auf der Karte. Das Handy-GPS liegt 3 bis 10 Meter daneben und zeigt deshalb nur grob den eigenen Standort. |
 | Anzahl Gärten | Einer. Das Datenmodell kann mehrere, die Oberfläche zeigt das erst bei Bedarf. |
 | Zugang | Benutzername und Passwort für Sven und Johannes, Sperre nach mehreren Fehlversuchen, von außen über den HTTPS-Tunnel. |
@@ -94,6 +94,8 @@ So wenig wie möglich, damit es auf dem Raspberry Pi einfach läuft und sich lei
 7. Tägliche Sicherung der Datenbank und der Uploads auf dem Pi.
 
 ## Reihenfolge
+
+Stand 10.11.2026: Stufe 1 ist umgesetzt.
 
 Nach jeder Stufe ist die App am Handy benutzbar und wird im Garten ausprobiert, bevor die nächste beginnt.
 

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% set aktiv = 'seiten.karte' %}
+{% block titel %}Karte · {{ garten.name }}{% endblock %}
+{% block koerper %}seite-karte{% endblock %}
+{% block kopf %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">{% endblock %}
+{% block inhalt %}
+<main>
+  <div id="karte" class="karte" role="application" aria-label="Karte des Gartens"></div>
+
+  <header class="karten-kopf">
+    <div class="schild">
+      <strong>{{ garten.name }}</strong>
+      <span>{{ "{:,.0f}".format(garten.flaeche_m2).replace(",", ".") }} m² · {{ daten.garten.flurstuecke|length }} {{ "Flurstück" if daten.garten.flurstuecke|length == 1 else "Flurstücke" }}</span>
+    </div>
+    <button class="rund" id="ebenen-knopf" type="button" aria-label="Karte einstellen" aria-haspopup="dialog">
+      <svg class="symbol" aria-hidden="true"><use href="#s-ebenen"/></svg>
+    </button>
+  </header>
+
+  <div class="karten-knoepfe">
+    <button class="rund" id="zum-garten" type="button" aria-label="Zum Garten springen">
+      <svg class="symbol" aria-hidden="true"><use href="#s-ziel"/></svg>
+    </button>
+  </div>
+
+  <dialog class="blatt" id="ebenen" aria-labelledby="ebenen-titel">
+    <div class="blatt-griff" aria-hidden="true"></div>
+    <h2 id="ebenen-titel">Karte</h2>
+
+    <fieldset class="wahl">
+      <legend class="nur-vorlesen">Kartengrund</legend>
+      <label><input type="radio" name="grund" value="luftbild"><span>Luftbild</span></label>
+      <label><input type="radio" name="grund" value="strasse"><span>Straßenkarte</span></label>
+    </fieldset>
+
+    <label class="schalter-zeile">
+      <span>Flurstücke anzeigen</span>
+      <input type="checkbox" id="flur-schalter" class="schalter">
+    </label>
+
+    <div class="blatt-abschnitt">
+      <button class="knopf" id="ansicht-merken" type="button">
+        <svg class="symbol" aria-hidden="true"><use href="#s-merken"/></svg>
+        Ausschnitt als Start merken
+      </button>
+      <p class="leise klein" id="ansicht-text"></p>
+      <button class="knopf ist-schlicht" id="ansicht-zurueck" type="button" hidden>Wieder den ganzen Garten zeigen</button>
+    </div>
+
+    <form method="dialog"><button class="knopf ist-haupt">Fertig</button></form>
+  </dialog>
+</main>
+<script type="application/json" id="daten">{{ daten|tojson }}</script>
+{% endblock %}
+{% block skripte %}
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/karte.js') }}"></script>
+{% endblock %}

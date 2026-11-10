@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set aktiv = 'seiten.heute' %}
+{% block titel %}Heute · {{ garten.name }}{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  <header class="kopf"><div><p class="leise klein">{{ garten.name }}</p><h1>Heute</h1></div></header>
+  <div class="inhalt">
+    <section class="leer">
+      <span class="leer-symbol"><svg class="symbol" aria-hidden="true"><use href="#s-heute"/></svg></span>
+      <h2>Noch keine Aufgaben</h2>
+      <p class="leise">Hier steht später, was im Garten als Nächstes dran ist, sortiert nach Dringlichkeit. Die Aufgaben kommen mit Stufe 3.</p>
+      <a class="knopf" href="{{ url_for('seiten.karte') }}">Zur Karte</a>
+    </section>
+  </div>
+</main>
+{% endblock %}

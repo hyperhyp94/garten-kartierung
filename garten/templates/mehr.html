@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% set aktiv = 'seiten.mehr' %}
+{% block titel %}Mehr · {{ garten.name }}{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  <header class="kopf"><div><h1>Mehr</h1></div></header>
+  <div class="inhalt">
+
+    <h2 class="rubrik">Garten</h2>
+    <a class="zeile karte-flaeche" href="{{ url_for('gaerten.bearbeiten', garten_id=garten.id) }}">
+      <span class="zeile-symbol"><svg class="symbol" aria-hidden="true"><use href="#s-stift"/></svg></span>
+      <span class="zeile-text">
+        <strong>{{ garten.name }}</strong>
+        <span class="leise klein">{% if garten.adresse %}{{ garten.adresse }} · {% endif %}{{ "{:,.0f}".format(garten.flaeche_m2).replace(",", ".") }} m²</span>
+      </span>
+      <svg class="symbol leise" aria-hidden="true"><use href="#s-weiter"/></svg>
+    </a>
+
+    <h2 class="rubrik">App</h2>
+    <details class="karte-flaeche aufklapp">
+      <summary class="zeile">
+        <span class="zeile-symbol"><svg class="symbol" aria-hidden="true"><use href="#s-handy"/></svg></span>
+        <span class="zeile-text"><strong>App installieren</strong><span class="leise klein">Garten auf den Startbildschirm legen</span></span>
+        <svg class="symbol leise aufklapp-pfeil" aria-hidden="true"><use href="#s-weiter"/></svg>
+      </summary>
+      <div class="aufklapp-inhalt">
+        <p><strong>iPhone:</strong> In Safari unten auf Teilen tippen, dann „Zum Home-Bildschirm“.</p>
+        <p><strong>Android:</strong> In Chrome oben rechts auf die drei Punkte tippen, dann „App installieren“ oder „Zum Startbildschirm hinzufügen“.</p>
+      </div>
+    </details>
+
+    <h2 class="rubrik">Konto</h2>
+    <div class="karte-flaeche">
+      <div class="zeile">
+        <span class="zeile-symbol ist-rund">{{ nutzer.anzeigename[0] }}</span>
+        <span class="zeile-text"><strong>{{ nutzer.anzeigename }}</strong><span class="leise klein">{{ "Meister" if nutzer.rolle == "meister" else "Besitzer" }}</span></span>
+      </div>
+      <form method="post" action="{{ url_for('anmeldung.abmelden') }}" class="zeile-trenner">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <button class="zeile ist-knopf" type="submit">
+          <span class="zeile-symbol"><svg class="symbol" aria-hidden="true"><use href="#s-abmelden"/></svg></span>
+          <span class="zeile-text"><strong>Abmelden</strong></span>
+        </button>
+      </form>
+    </div>
+
+    <p class="leise klein fussnote">
+      Version {{ version }}<br>
+      Luftbild und Flurstücke: LGLN Niedersachsen, CC BY 4.0. Straßenkarte: OpenStreetMap-Mitwirkende. Kartenanzeige: Leaflet.
+    </p>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titel %}{{ titel }}{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  <div class="inhalt">
+    <section class="leer">
+      <h1>{{ titel }}</h1>
+      <p class="leise">{{ text }}</p>
+      <a class="knopf ist-haupt" href="{{ url_for('seiten.start') }}">Zum Garten</a>
+    </section>
+  </div>
+</main>
+{% endblock %}

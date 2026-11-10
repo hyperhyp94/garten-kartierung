@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set aktiv = 'seiten.bestand' %}
+{% block titel %}Bestand · {{ garten.name }}{% endblock %}
+{% block inhalt %}
+<main class="seite">
+  <header class="kopf"><div><p class="leise klein">{{ garten.name }}</p><h1>Bestand</h1></div></header>
+  <div class="inhalt">
+    <section class="leer">
+      <span class="leer-symbol"><svg class="symbol" aria-hidden="true"><use href="#s-bestand"/></svg></span>
+      <h2>Noch keine Pflanzen</h2>
+      <p class="leise">Hier erscheinen alle Pflanzen und Objekte des Gartens als Liste mit Suche. Das Erfassen kommt mit Stufe 2.</p>
+      <a class="knopf" href="{{ url_for('seiten.karte') }}">Zur Karte</a>
+    </section>
+  </div>
+</main>
+{% endblock %}

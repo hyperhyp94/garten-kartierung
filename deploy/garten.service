@@ -1,0 +1,19 @@
+# Startet die Garten-App beim Hochfahren des Raspberry Pi.
+# Benutzer und Pfad anpassen, dann:
+#   sudo cp deploy/garten.service /etc/systemd/system/
+#   sudo systemctl enable --now garten
+
+[Unit]
+Description=Garten-Kartierung
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/garten-kartierung
+ExecStart=/home/pi/garten-kartierung/.venv/bin/gunicorn --workers 1 --threads 8 --bind 0.0.0.0:5113 "garten:create_app()"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

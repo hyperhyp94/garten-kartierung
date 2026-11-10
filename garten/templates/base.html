@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block titel %}Garten{% endblock %}</title>
+  <meta name="theme-color" content="#1F5135">
+  <meta name="csrf" content="{{ csrf_token() }}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Garten">
+  <link rel="manifest" href="{{ url_for('seiten.manifest') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icons/icon.svg') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+  {% block kopf %}{% endblock %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body class="{% block koerper %}{% endblock %}">
+  {% include "symbole.html" %}
+  {% block inhalt %}{% endblock %}
+  {% set aktiv = aktiv|default('') %}
+  {% if nutzer and not ohne_leiste|default(false) %}
+  <nav class="leiste" aria-label="Bereiche">
+    {% for ziel, symbol, text in [
+      ('seiten.heute', 's-heute', 'Heute'),
+      ('seiten.karte', 's-karte', 'Karte'),
+      ('seiten.bestand', 's-bestand', 'Bestand'),
+      ('seiten.mehr', 's-mehr', 'Mehr'),
+    ] %}
+    <a href="{{ url_for(ziel) }}" class="leiste-punkt{% if aktiv == ziel %} ist-aktiv{% endif %}"{% if aktiv == ziel %} aria-current="page"{% endif %}>
+      <span class="leiste-symbol"><svg class="symbol" aria-hidden="true"><use href="#{{ symbol }}"/></svg></span>
+      <span>{{ text }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+  <div id="meldung" class="meldung" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block skripte %}{% endblock %}
+</body>
+</html>

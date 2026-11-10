@@ -1,0 +1,829 @@
+/* Garten-Kartierung. Gebaut fürs Handy im Freien: große Flächen, klare Kontraste, alles mit dem Daumen erreichbar. */
+
+:root {
+  --gruen-900: #14281c;
+  --gruen-700: #1f5135;
+  --gruen-600: #2a6a46;
+  --gruen-100: #e2eee5;
+  --sand: #f5f2ea;
+  --flaeche: #ffffff;
+  --text: #1a231e;
+  --leise: #5a6860;
+  --linie: #e2ddd1;
+  --sonne: #f2b705;
+  --rot: #a8261f;
+  --rot-100: #fbeae8;
+
+  --rund: 16px;
+  --leiste: 64px;
+  --oben: env(safe-area-inset-top, 0px);
+  --unten: env(safe-area-inset-bottom, 0px);
+  --schatten: 0 1px 2px rgb(20 40 28 / 0.08), 0 6px 20px rgb(20 40 28 / 0.1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  color: var(--text);
+  background: var(--sand);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+a {
+  color: var(--gruen-700);
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 3px solid var(--sonne);
+  outline-offset: 2px;
+}
+
+.leise {
+  color: var(--leise);
+}
+
+.klein {
+  font-size: 0.85rem;
+}
+
+.nur-vorlesen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.symbol {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Seitenaufbau ---------- */
+
+.seite {
+  padding-bottom: calc(var(--leiste) + var(--unten) + 24px);
+}
+
+.kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(var(--oben) + 20px) 20px 12px;
+}
+
+.inhalt {
+  padding: 8px 20px 20px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.kopf {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.karte-flaeche {
+  background: var(--flaeche);
+  border-radius: var(--rund);
+  box-shadow: 0 1px 2px rgb(20 40 28 / 0.06);
+  border: 1px solid var(--linie);
+  overflow: hidden;
+}
+
+.rubrik {
+  margin: 24px 4px 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--leise);
+}
+
+.fussnote {
+  margin: 28px 4px 0;
+}
+
+/* ---------- Knöpfe ---------- */
+
+.knopf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 18px;
+  border: 1.5px solid var(--linie);
+  border-radius: 14px;
+  background: var(--flaeche);
+  color: var(--gruen-900);
+  font-weight: 650;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, background-color 0.15s ease;
+}
+
+.knopf:active {
+  transform: scale(0.98);
+}
+
+.knopf.ist-haupt {
+  background: var(--gruen-700);
+  border-color: var(--gruen-700);
+  color: #fff;
+}
+
+.knopf.ist-haupt:active {
+  background: var(--gruen-900);
+}
+
+.knopf.ist-schlicht {
+  border-color: transparent;
+  background: transparent;
+  color: var(--gruen-700);
+}
+
+.knopf:disabled {
+  background: #d9d6cc;
+  border-color: #d9d6cc;
+  color: #7b7f78;
+  cursor: default;
+  transform: none;
+}
+
+.knopf.laedt {
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.rund {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--flaeche);
+  color: var(--gruen-900);
+  box-shadow: var(--schatten);
+  cursor: pointer;
+  touch-action: manipulation;
+  text-decoration: none;
+}
+
+.rund:active {
+  background: var(--gruen-100);
+}
+
+.rund.ist-flach {
+  box-shadow: none;
+  border: 1px solid var(--linie);
+}
+
+.rund.ist-an {
+  background: var(--gruen-700);
+  color: #fff;
+}
+
+/* ---------- Formulare ---------- */
+
+.formular {
+  display: grid;
+  gap: 18px;
+}
+
+.feld {
+  display: grid;
+  gap: 6px;
+  font-weight: 650;
+}
+
+.feld small {
+  font-weight: 400;
+}
+
+.feld input {
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 14px;
+  border: 1.5px solid #cfc9bb;
+  border-radius: 14px;
+  background: var(--flaeche);
+  font-weight: 400;
+}
+
+.feld input::placeholder {
+  color: #8d968f;
+}
+
+.feld input:focus {
+  outline: none;
+  border-color: var(--gruen-600);
+  box-shadow: 0 0 0 3px var(--gruen-100);
+}
+
+.hinweis {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--gruen-100);
+}
+
+.hinweis.ist-fehler {
+  background: var(--rot-100);
+  color: var(--rot);
+  font-weight: 600;
+}
+
+.fuss {
+  margin-top: 8px;
+}
+
+/* ---------- Anmelden ---------- */
+
+.anmelden {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: calc(var(--oben) + 12vh) 20px 40px;
+  text-align: center;
+}
+
+.anmelden-zeichen {
+  border-radius: 18px;
+  margin-bottom: 10px;
+}
+
+.anmelden .formular {
+  width: 100%;
+  margin-top: 28px;
+  padding: 22px 18px;
+  text-align: left;
+}
+
+/* ---------- Untere Leiste ---------- */
+
+.leiste {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 900;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: calc(var(--leiste) + var(--unten));
+  padding: 0 8px var(--unten);
+  background: var(--flaeche);
+  border-top: 1px solid var(--linie);
+}
+
+.leiste-punkt {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  color: var(--leise);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.leiste-symbol {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 30px;
+  border-radius: 15px;
+  transition: background-color 0.15s ease;
+}
+
+.leiste-punkt.ist-aktiv {
+  color: var(--gruen-900);
+}
+
+.leiste-punkt.ist-aktiv .leiste-symbol {
+  background: var(--gruen-100);
+  color: var(--gruen-700);
+}
+
+/* ---------- Listenzeilen ---------- */
+
+.zeile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 14px;
+  color: inherit;
+  text-decoration: none;
+  text-align: left;
+}
+
+.zeile.ist-knopf {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+a.zeile:active,
+.zeile.ist-knopf:active,
+summary.zeile:active {
+  background: var(--gruen-100);
+}
+
+.zeile-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.zeile-symbol {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--gruen-100);
+  color: var(--gruen-700);
+  font-weight: 700;
+}
+
+.zeile-symbol.ist-rund {
+  border-radius: 50%;
+  background: var(--gruen-700);
+  color: #fff;
+}
+
+.zeile-trenner {
+  border-top: 1px solid var(--linie);
+}
+
+.aufklapp summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.aufklapp summary::-webkit-details-marker {
+  display: none;
+}
+
+.aufklapp[open] .aufklapp-pfeil {
+  transform: rotate(90deg);
+}
+
+.aufklapp-inhalt {
+  display: grid;
+  gap: 10px;
+  padding: 4px 16px 16px 68px;
+}
+
+/* ---------- Leere Seiten ---------- */
+
+.leer {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: 8vh;
+  text-align: center;
+}
+
+.leer p {
+  max-width: 34ch;
+}
+
+.leer .knopf {
+  width: auto;
+  min-width: 200px;
+  margin-top: 10px;
+}
+
+.leer-symbol {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--gruen-100);
+  color: var(--gruen-700);
+}
+
+.leer-symbol .symbol {
+  width: 34px;
+  height: 34px;
+}
+
+/* ---------- Karte ---------- */
+
+.seite-karte,
+.seite-form {
+  overflow: hidden;
+}
+
+.karte {
+  position: fixed;
+  inset: 0 0 calc(var(--leiste) + var(--unten)) 0;
+  z-index: 0;
+  background: #cfd8cf;
+}
+
+.ist-karte .karte {
+  inset: 0;
+}
+
+.leaflet-container {
+  font: inherit;
+  background: #cfd8cf;
+}
+
+.karten-kopf {
+  position: fixed;
+  inset: calc(var(--oben) + 12px) 12px auto 12px;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.karten-kopf > * {
+  pointer-events: auto;
+}
+
+.schild {
+  display: grid;
+  min-width: 0;
+  padding: 8px 16px;
+  border-radius: 26px;
+  background: var(--flaeche);
+  box-shadow: var(--schatten);
+  line-height: 1.25;
+}
+
+.schild strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.schild span {
+  color: var(--leise);
+  font-size: 0.8rem;
+}
+
+.karten-knoepfe {
+  position: fixed;
+  right: 12px;
+  bottom: calc(var(--leiste) + var(--unten) + 28px);
+  z-index: 500;
+  display: grid;
+  gap: 10px;
+}
+
+.karten-knoepfe.ist-ueber-tafel {
+  bottom: calc(var(--tafel, 190px) + 14px);
+}
+
+.leaflet-control-attribution {
+  margin: 0 !important;
+  padding: 1px 6px !important;
+  border-radius: 0 6px 0 0;
+  background: rgb(255 255 255 / 0.75) !important;
+  font-size: 10px;
+  color: #333 !important;
+}
+
+.flur-nr {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 2px #000;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.ich-bin-hier {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #1a73e8;
+  box-shadow: 0 0 0 6px rgb(26 115 232 / 0.25);
+}
+
+/* ---------- Blatt von unten ---------- */
+
+.blatt {
+  width: 100%;
+  max-width: 560px;
+  max-height: 86dvh;
+  margin: auto auto 0;
+  padding: 10px 20px calc(20px + var(--unten));
+  border: 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--flaeche);
+  color: inherit;
+  box-shadow: 0 -8px 30px rgb(20 40 28 / 0.2);
+}
+
+.blatt[open] {
+  display: grid;
+  gap: 16px;
+  animation: blatt-hoch 0.22s ease-out;
+}
+
+.blatt::backdrop {
+  background: rgb(12 24 16 / 0.45);
+}
+
+.blatt-griff {
+  justify-self: center;
+  width: 40px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--linie);
+}
+
+.blatt-abschnitt {
+  display: grid;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--linie);
+}
+
+@keyframes blatt-hoch {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+.wahl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin: 0;
+  padding: 4px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--sand);
+}
+
+.wahl label {
+  position: relative;
+  display: block;
+}
+
+.wahl input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.wahl span {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  border-radius: 11px;
+  font-weight: 650;
+  color: var(--leise);
+}
+
+.wahl input:checked + span {
+  background: var(--flaeche);
+  color: var(--gruen-900);
+  box-shadow: 0 1px 3px rgb(20 40 28 / 0.15);
+}
+
+.wahl input:focus-visible + span {
+  outline: 3px solid var(--sonne);
+}
+
+.schalter-zeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  font-weight: 650;
+}
+
+.schalter {
+  appearance: none;
+  flex: none;
+  position: relative;
+  width: 56px;
+  height: 32px;
+  margin: 0;
+  border-radius: 16px;
+  background: #c9c5ba;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.schalter::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  transition: transform 0.15s ease;
+}
+
+.schalter:checked {
+  background: var(--gruen-600);
+}
+
+.schalter:checked::after {
+  transform: translateX(24px);
+}
+
+/* ---------- Garten anlegen ---------- */
+
+.suchfeld {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 26px;
+  background: var(--flaeche);
+  box-shadow: var(--schatten);
+  color: var(--leise);
+}
+
+.suchfeld input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--text);
+  outline: none;
+}
+
+.suchfeld input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.tafel {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 600;
+  display: grid;
+  gap: 8px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px 20px calc(16px + var(--unten));
+  border-radius: 24px 24px 0 0;
+  background: var(--flaeche);
+  box-shadow: 0 -8px 30px rgb(20 40 28 / 0.2);
+}
+
+.tafel-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.marken {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.marken:empty {
+  display: none;
+}
+
+.marke {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: 40px;
+  padding: 0 6px 0 14px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--gruen-100);
+  color: var(--gruen-900);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.marke .symbol {
+  width: 18px;
+  height: 18px;
+  margin: 0 4px;
+  color: var(--leise);
+}
+
+/* ---------- Meldung ---------- */
+
+.meldung {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--leiste) + var(--unten) + 20px);
+  z-index: 2000;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: var(--gruen-900);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: var(--schatten);
+  transform: translateX(-50%);
+  animation: meldung-ein 0.2s ease-out;
+}
+
+.meldung.ist-fehler {
+  background: var(--rot);
+}
+
+.meldung.ist-oben {
+  top: calc(var(--oben) + 76px);
+  bottom: auto;
+}
+
+@keyframes meldung-ein {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
